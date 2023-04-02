@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from flask_mysqldb import MySQL
-from flask_sqlalchemy import SQLAlchemy
 import yaml
 import json
 import os
@@ -18,10 +17,9 @@ app.config['MYSQL_PASSWORD'] = db['mysql_password']
 app.config['MYSQL_DB'] = db['mysql_db']
 
 mysql = MySQL(app)
-UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), 'store_files'))
+UPLOAD_FOLDER = 'store_files/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 # global variables
 student_cpi = 0
@@ -30,6 +28,8 @@ def file_to_binary(filename):
     with open(filename, 'rb') as file:
         binary_data = file.read()
     return binary_data
+
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -185,42 +185,6 @@ def register():
 def hr_reg():
     if request.method == 'POST':
         userDetails = request.form
-        if 'file' not in request.files:
-            flash('No file part')
-            print('There is no file in registration form!')
-            return redirect(request.url)
-
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            profile_photo = file_to_binary(file_path)
-
-        if 'jfile' not in request.files:
-            flash('No resume file')
-            print("No Resume file in registration form!!!!")
-            return redirect(request.url)
-
-        jfile = request.files['jfile']
-        if jfile.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if jfile and allowed_file(jfile.filename):
-            filename = secure_filename(jfile.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            jfile.save(file_path)
-            job_description = file_to_binary(file_path)
-
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],
         middle_name = userDetails['middle_name'],
@@ -228,7 +192,7 @@ def hr_reg():
         country_code = userDetails['country_code'],
         mobile_number = userDetails['mobile_number'],
         email_id = userDetails['email_id'],
-        profile_photo = profile_photo,
+        profile_photo = userDetails['profile_photo'],
         password = userDetails['password'],
         nationality = userDetails['nationality'],
         company_name = userDetails['company_name'],
@@ -323,43 +287,37 @@ def hr_reg():
 def student_reg():
     if request.method == 'POST':
         userDetails = request.form
-        if 'file' not in request.files:
-            flash('No file part')
-            print('There is no file in registration form!')
-            return redirect(request.url)
-
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            profile_photo = file_to_binary(file_path)
-
-        if 'rfile' not in request.files:
-            flash('No resume file')
-            print("No Resume file in registration form!!!!")
-            return redirect(request.url)
-
-        rfile = request.files['rfile']
-        if rfile.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if rfile and allowed_file(rfile.filename):
-            filename = secure_filename(rfile.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            rfile.save(file_path)
-            resume = file_to_binary(file_path)
+       
+           
 
 
+      
+           
+           
+                                       
+
+
+       
+        # if 'profile_photo' not in request.files:
+        #     return 'there is no profile_photo in form!'
+        # profile_file = request.files.get('profile_photo'),
+        # if profile_file and allowed_file(profile_file.profile_filename):
+        #     profile_filename = secure_filename(profile_file),
+        #     profile_file_path = os.path.join(app.config['UPLOAD_FOLDER'] ,  profile_filename),
+        #     profile_file.save(profile_file_path),
+        #     profile_photo = file_to_binary(profile_file_path),
+
+
+        # if 'resume' not in request.files:
+        #     return 'there is no resume in form!'
+        # resume_file = request.files['resume'],
+        # resume_filename = secure_filename(resume_file),
+        # resume_file_path = os.path.join(app.config['UPLOAD_FOLDER'] , resume_filename),
+        # resume_file.save(resume_file_path),
+        # resume = file_to_binary(resume_file_path),
+
+
+       
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],
         middle_name = userDetails['middle_name'],
@@ -367,7 +325,7 @@ def student_reg():
         country_code = userDetails['country_code'],
         mobile_number = userDetails['mobile_number'],
         email_id = userDetails['email_id'],
-        profile_photo = profile_photo,
+        profile_photo = userDetails['file'],
         password = userDetails['password'],
         nationality = userDetails['nationality'],
         cpi = userDetails['cpi'],
@@ -380,9 +338,9 @@ def student_reg():
         curr_program = 'Btech',
         joining_date = userDetails['joining_date'],
         # year_of_graduation = userDetails['year_of_graduation'],
-        resume = resume,
-        major_disc = 'cse',
-        minor_disc = 'cse'
+        resume = userDetails['rfile'],
+        major_disc = '',
+        minor_disc = userDetails['minor_disc']
         x = {"country_code":country_code, "number":mobile_number}
         cur = mysql.connection.cursor()
 

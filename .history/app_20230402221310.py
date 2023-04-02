@@ -209,17 +209,17 @@ def hr_reg():
             print("No Resume file in registration form!!!!")
             return redirect(request.url)
 
-        jfile = request.files['jfile']
+        rfile = request.files['jfile']
         if jfile.filename == '':
             flash('No selected file')
             print("NO files!!!!")
             return redirect(request.url)
 
-        if jfile and allowed_file(jfile.filename):
-            filename = secure_filename(jfile.filename)
+        if jfile and allowed_file(rfile.filename):
+            filename = secure_filename(rfile.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            jfile.save(file_path)
-            job_description = file_to_binary(file_path)
+            rfile.save(file_path)
+            resume = file_to_binary(file_path)
 
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],

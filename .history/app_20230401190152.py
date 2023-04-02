@@ -18,10 +18,9 @@ app.config['MYSQL_PASSWORD'] = db['mysql_password']
 app.config['MYSQL_DB'] = db['mysql_db']
 
 mysql = MySQL(app)
-UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), 'store_files'))
+UPLOAD_FOLDER = 'store_files/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 # global variables
 student_cpi = 0
@@ -185,42 +184,6 @@ def register():
 def hr_reg():
     if request.method == 'POST':
         userDetails = request.form
-        if 'file' not in request.files:
-            flash('No file part')
-            print('There is no file in registration form!')
-            return redirect(request.url)
-
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            profile_photo = file_to_binary(file_path)
-
-        if 'jfile' not in request.files:
-            flash('No resume file')
-            print("No Resume file in registration form!!!!")
-            return redirect(request.url)
-
-        jfile = request.files['jfile']
-        if jfile.filename == '':
-            flash('No selected file')
-            print("NO files!!!!")
-            return redirect(request.url)
-
-        if jfile and allowed_file(jfile.filename):
-            filename = secure_filename(jfile.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            jfile.save(file_path)
-            job_description = file_to_binary(file_path)
-
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],
         middle_name = userDetails['middle_name'],
@@ -228,7 +191,7 @@ def hr_reg():
         country_code = userDetails['country_code'],
         mobile_number = userDetails['mobile_number'],
         email_id = userDetails['email_id'],
-        profile_photo = profile_photo,
+        profile_photo = userDetails['profile_photo'],
         password = userDetails['password'],
         nationality = userDetails['nationality'],
         company_name = userDetails['company_name'],
@@ -322,7 +285,8 @@ def hr_reg():
 @app.route('/student-registration', methods=['GET', 'POST'])
 def student_reg():
     if request.method == 'POST':
-        userDetails = request.form
+       userDetails = request.form
+        
         if 'file' not in request.files:
             flash('No file part')
             print('There is no file in registration form!')

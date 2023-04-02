@@ -204,22 +204,22 @@ def hr_reg():
             file.save(file_path)
             profile_photo = file_to_binary(file_path)
 
-        if 'jfile' not in request.files:
+        if 'rfile' not in request.files:
             flash('No resume file')
             print("No Resume file in registration form!!!!")
             return redirect(request.url)
 
-        jfile = request.files['jfile']
-        if jfile.filename == '':
+        rfile = request.files['rfile']
+        if rfile.filename == '':
             flash('No selected file')
             print("NO files!!!!")
             return redirect(request.url)
 
-        if jfile and allowed_file(jfile.filename):
-            filename = secure_filename(jfile.filename)
+        if rfile and allowed_file(rfile.filename):
+            filename = secure_filename(rfile.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            jfile.save(file_path)
-            job_description = file_to_binary(file_path)
+            rfile.save(file_path)
+            resume = file_to_binary(file_path)
 
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],
@@ -228,7 +228,7 @@ def hr_reg():
         country_code = userDetails['country_code'],
         mobile_number = userDetails['mobile_number'],
         email_id = userDetails['email_id'],
-        profile_photo = profile_photo,
+        profile_photo = profile,
         password = userDetails['password'],
         nationality = userDetails['nationality'],
         company_name = userDetails['company_name'],

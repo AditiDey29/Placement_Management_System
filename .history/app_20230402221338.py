@@ -209,7 +209,7 @@ def hr_reg():
             print("No Resume file in registration form!!!!")
             return redirect(request.url)
 
-        jfile = request.files['jfile']
+        rfile = request.files['jfile']
         if jfile.filename == '':
             flash('No selected file')
             print("NO files!!!!")
