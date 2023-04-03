@@ -525,7 +525,7 @@ def admin_reg():
 
     else:
         print('redirecting without saving the data!')
-        return render_template('login/admin.html')
+        return render_template('login/admin.html', )
 
 
 @app.route('/student-dashboard/<person_id>')

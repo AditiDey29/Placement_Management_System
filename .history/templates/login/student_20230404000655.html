@@ -600,17 +600,16 @@
       }
       document.getElementById("student_id").innerText = arr;
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
       window.onload = function () {
         if ("{{ value }}") {
-          
-          Swal.fire("{{ value }}", "Try Again!", "error");
+          Swal.fire(err, "Try Again!", "error");
+          alert("{{ value }}");
         }
       };
     </script>
-    
- 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
     
     <script>
       // Get the current year for the copyright

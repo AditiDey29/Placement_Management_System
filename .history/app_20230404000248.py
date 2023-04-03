@@ -487,7 +487,7 @@ def admin_reg():
         designation = userDetails['designation']
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
-      
+        showError = ""
         try:
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             values = (person_id, first_name, middle_name, last_name, json.dumps(
@@ -516,7 +516,6 @@ def admin_reg():
             # print("Failed to insert data into MySQL table: {}".format(error))
             mysql.connection.rollback()  # Roll back changes in case of error
             error = "{}".format(error)
-          
             print(error)
             return render_template('login/admin.html', value=error)
             # return "An error occurred while inserting data, Error is {}".format(error)

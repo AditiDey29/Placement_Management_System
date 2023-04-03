@@ -603,9 +603,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
       window.onload = function () {
-        if ("{{ value }}") {
+        var err = "{{error}}";
+        if (err != "") {
           
-          Swal.fire("{{ value }}", "Try Again!", "error");
+        }  
+        if ("{{ value }}") {
+          alert("{{ value }}");
+          Swal.fire(err, "Try Again!", "error");
         }
       };
     </script>
