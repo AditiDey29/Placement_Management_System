@@ -304,16 +304,18 @@ def hr_reg():
                     values1 = (person_id, job_id, company_rep, company_name, website, type_of_org,
                                industry_sector, '1', '1', start_date, end_date, job_id, person_id)
                     cur.execute(sql1, values1)
-                    mysql.connection.commit()
                     print("Data for company_details inserted successfully")
+                    sql2 = "insert into jobs_posted(job_id, person_id) values (%s, %s)"
+                    values2 = (job_id, person_id)
+                    cur.execute(sql2, values2)
+                    mysql.connection.commit()
+                    print("Data for jobs_posted inserted successfully")
                     # return redirect("/users")
                     return redirect('/company-dashboard/'+str(person_id[0]))
 
                 except mysql.connection.Error as error:
                     # print("Failed to insert data into MySQL table: {}".format(error))
                     mysql.connection.rollback()  # Roll back changes in case of error
-                    mysql.connection.rollback()
-                    mysql.connection.rollback()
                     # return "An error occurred while inserting data, Error is {}".format(error)
                     error = "{}".format(error)
                     return render_template('login/company_rep.html', value=error)
@@ -321,7 +323,6 @@ def hr_reg():
             except mysql.connection.Error as error:
                 # print("Failed to insert data into MySQL table: {}".format(error))
                 mysql.connection.rollback()  # Roll back changes in case of error
-                mysql.connection.rollback()
                 # return "An error occurred while inserting data, Error is {}".format(error)
                 error = "{}".format(error)
                 return render_template('login/company_rep.html', value=error)
@@ -332,9 +333,6 @@ def hr_reg():
             error = "{}".format(error)
             return render_template('login/company_rep.html', value=error)
             # return "An error occurred while inserting data, Error is {}".format(error)
-
-        cur.close()
-
     else:
         print('Redirecting without saving the data!')
         return render_template('login/company_rep.html')
@@ -539,7 +537,7 @@ def student_dashboard(person_id):
 @app.route('/company-dashboard/<person_id>')
 def company_dashboard(person_id):
     if session.get('loggedin'):
-        return render_template('dashboard/company_view.html', person_id=person_id)
+        return redirect('/company-profile/'+str(person_id))
     return redirect('/')
     # return render_template('dashboard/company_view.html', person_id=person_id)
 
@@ -612,7 +610,7 @@ def company_profile(person_id):
         cur.execute("SELECT * FROM address WHERE person_id=%s", [person_id])
         address = cur.fetchone()
         if person and hr:
-            return render_template('dashboard/company-profile.html', person=person, hr=hr, address=address, image=convertedImage)
+            return render_template('dashboard/company-profile.html', person_id=person_id, person=person, hr=hr, address=address, image=convertedImage)
         else:
             return "The hr is not present"
     return redirect('/')
@@ -630,6 +628,27 @@ def company_profile(person_id):
     #     return render_template('dashboard/company-profile.html', person=person, hr=hr, address=address)
     # else:
     #     return "The hr is not present"
+
+
+@app.route('/jobs-posted/<person_id>')
+def posted_jobs(person_id):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        resultValue = cur.execute("SELECT * FROM jobs_posted WHERE person_id=%s", [person_id])
+        if resultValue > 0:
+            jobs = cur.fetchall()
+            jobDetails = []
+            for i in range(0, len(jobs)):
+                jobId = jobs[i][0]
+                cur = mysql.connection.cursor()
+                result = cur.execute("SELECT * FROM job_profile where job_id=%s", [jobId])
+                if result > 0:
+                    detail = cur.fetchone()
+                    jobDetails.append(detail)
+            return render_template('dashboard/all_jobs_posted.html', jobDetails=jobDetails)
+        else:
+            return "No jobs present"
+    return redirect('/')
 
 
 @app.route('/student-profile/<person_id>')
@@ -792,9 +811,25 @@ def show_job_profile(job_id):
             else:
                 return render_template('dashboard/one_job_details.html', job=job, company=company)
         else:
-            return "not mapped to a comapny"
+            return render_template('dashboard/one_job_details.html', job=job)
     else:
         return "No Job ID exists with this id"
+
+@app.route('/all-jobs-posted/<job_id>')
+def show_job_posted_profile(job_id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
+    job = cur.fetchone()
+    if job:
+        cur.execute("select * from prog_details where job_id=%s", [job_id])
+        details = cur.fetchall()
+        if details:
+            return render_template('dashboard/one_job_details.html', job=job, details=details)
+        return render_template('dashboard/one_job_detail_1.html', job=job)
+    else:
+        return "No Job ID exists with this id"
+
+
 
 
 @app.route('/eligible_jobs/<job_id>/<person_id>', methods=['GET', 'POST'])
@@ -1014,17 +1049,16 @@ def post_job(person_id):
                 values1 = (job_id, person_id, job[2], job[3], job[4], job[5],
                            job[6], '1', '1', job[9], job[10], job_id, person_id)
                 cur.execute(sql1, values1)
-                mysql.connection.commit()
                 print("Data for company_details inserted successfully")
-                # return redirect("/users")
-                # return redirect('/company-dashboard/'+str(person_id[0]))
+                sql2 = "insert into jobs_posted(job_id, person_id) values (%s, %s)"
+                values2 = (job_id, person_id)
+                cur.execute(sql2, values2)
+                print("Data for jobs_posted inserted successfully")
+                mysql.connection.commit()
 
             except mysql.connection.Error as error:
-                # print("Failed to insert data into MySQL table: {}".format(error))
-                mysql.connection.rollback()  # Roll back changes in case of error
-                # return "An error occurred while inserting data, Error is {}".format(error)
+                mysql.connection.rollback()
                 error = "{}".format(error)
-                # return render_template('/company_rep.html', value=error)
                 print(error)
 
         except mysql.connection.Error as error:
