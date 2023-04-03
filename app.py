@@ -801,7 +801,8 @@ def show_job_profile(job_id):
 def show_eligible_job_profile(job_id, person_id):
     if request.method == 'POST':
         cur = mysql.connection.cursor()
-        cur.execute("select * from applies_to where person_id=%s and job_id=%s", [person_id, job_id])
+        cur.execute(
+            "select * from applies_to where person_id=%s and job_id=%s", [person_id, job_id])
         jobs = cur.fetchall()
         if (jobs):
             return "You already applied for this job"
@@ -855,14 +856,14 @@ def apply(job_id, person_id):
         #     alert = "You already applied for this job"
         #     return alert
         # else:
-            # try:
-            #     sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
-            #     values = (job_id, person_id, "1", "Applied")
-            #     cur.execute(sql, values)
-            #     mysql.connection.commit()
-            #     return redirect("/apply/"+str(job_id)+"/"+str(person_id))
-            # except mysql.connection.Error as error:
-            #     return error
+        # try:
+        #     sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
+        #     values = (job_id, person_id, "1", "Applied")
+        #     cur.execute(sql, values)
+        #     mysql.connection.commit()
+        #     return redirect("/apply/"+str(job_id)+"/"+str(person_id))
+        # except mysql.connection.Error as error:
+        #     return error
         return jobs
 
 
@@ -1044,11 +1045,20 @@ def post_job(person_id):
 @app.route('/student-applied-jobs/<person_id>')
 def student_applied_jobs(person_id):
     cur = mysql.connection.cursor()
-    resultValue = cur.execute("SELECT * FROM applies_to where person_id=%s", [person_id])
+    resultValue = cur.execute(
+        "SELECT * FROM applies_to where person_id=%s", [person_id])
     if resultValue > 0:
         jobs = cur.fetchall()
-        
-        return render_template('dashboard/applied_jobs.html', jobs=jobs)
+        jobDetails = []
+        for i in range(0, len(jobs)):
+            jobId = jobs[i][0]
+            cur = mysql.connection.cursor()
+            result = cur.execute(
+                "SELECT * FROM job_profile where job_id=%s", [jobId])
+            if result > 0:
+                detail = cur.fetchone()
+                jobDetails.append(detail)
+        return render_template('dashboard/all_jobs.html', jobDetails=jobDetails)
     else:
         return "No jobs present"
 
