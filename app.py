@@ -237,7 +237,7 @@ def hr_reg():
         hr_email = userDetails['hr_email'],
         job_id = userDetails['job_id'],
         job_designation = userDetails['job_designation'],
-        job_description = userDetails['job_description'],
+        job_description = job_description,
         job_location = userDetails['job_location'],
         service_bond = userDetails['service_bond'],
         terms_and_conditions = userDetails['terms_and_conditions'],
@@ -315,12 +315,14 @@ def hr_reg():
 
         cur.close()
 
-    else:  
+    else: 
+        print('Redirecting without saving the data!') 
         return render_template('login/company_rep.html')
 
 
 @app.route('/student-registration', methods=['GET', 'POST'])
 def student_reg():
+    print(request.method)
     if request.method == 'POST':
         userDetails = request.form
         if 'file' not in request.files:
@@ -388,6 +390,7 @@ def student_reg():
 
 
         try:
+            print("Data for person inserted successfullyfgfdgfdg")  
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             values = (person_id,first_name, middle_name, last_name, json.dumps(x), email_id, profile_photo, password, nationality, "Student")
             cur.execute(sql, values)
@@ -416,6 +419,7 @@ def student_reg():
             # print("Failed to insert data into MySQL table: {}".format(error))
             mysql.connection.rollback()  # Roll back changes in case of error
             error = "{}".format(error)
+            print(error)
             return render_template('login/student.html', value=error)
             # return "An error occurred while inserting data, Error is {}".format(error)
 
@@ -423,14 +427,36 @@ def student_reg():
         # cur.close()
 
 
-    else:  
+    else:
+        print("Redirecting without saving data!")  
         return render_template('login/student.html')
 
 
 @app.route('/administrator-registration', methods=['GET', 'POST'])
 def admin_reg():
+    print(request.method)
+    print(request.__dict__)
     if request.method == 'POST':
         userDetails = request.form
+        if 'file' not in request.files:
+            flash('No file part')
+            print('There is no file in registration form!')
+            return redirect(request.url)
+
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            print("NO files!!!!")
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            profile_photo = file_to_binary(file_path)
+
         person_id = userDetails['person_id'],
         first_name = userDetails['first_name'],
         middle_name = userDetails['middle_name'],
@@ -438,9 +464,9 @@ def admin_reg():
         country_code = userDetails['country_code'],
         mobile_number = userDetails['mobile_number'],
         email_id = userDetails['email_id'],
-        profile_photo = userDetails['profile_photo'],
+        profile_photo = profile_photo,
         password = userDetails['password'],
-        nationality = userDetails['nationality'],
+        nationality = "Indian",
         designation = userDetails['designation']
         x = {"country_code":country_code, "number":mobile_number}
         cur = mysql.connection.cursor()
@@ -465,18 +491,21 @@ def admin_reg():
                 mysql.connection.rollback()  # Roll back changes in case of error
                 # return "An error occurred while inserting data, Error is {}".format(error)
                 error = "{}".format(error)
+                print(error)
                 return render_template('login/admin.html', value=error)
             
         except mysql.connection.Error as error:
             # print("Failed to insert data into MySQL table: {}".format(error))
             mysql.connection.rollback()  # Roll back changes in case of error
             error = "{}".format(error)
+            print(error)
             return render_template('login/admin.html', value=error)
             # return "An error occurred while inserting data, Error is {}".format(error)
 
         cur.close()
 
-    else:  
+    else:
+        print('redirecting without saving the data!')  
         return render_template('login/admin.html')
                     
 
@@ -507,6 +536,11 @@ def admin_profile(person_id):
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM person WHERE person_id=%s",[person_id])
         person = cur.fetchone()
+        print("This is person====>>>", person)
+        if person[6] is not None:
+            convertedImage = b64encode(person[6]).decode("utf-8")
+        else:
+            convertedImage = " "
         cur.execute("SELECT * FROM administrator WHERE person_id=%s",[person_id])
         admin = cur.fetchone() 
         cur.execute("SELECT * FROM address WHERE person_id=%s",[person_id])
@@ -515,7 +549,7 @@ def admin_profile(person_id):
         person[4] = json.loads(person[4])
         person = tuple(person)
         if person and admin:
-            return render_template('dashboard/admin-profile.html', person=person, admin=admin, address=address)
+            return render_template('dashboard/admin-profile.html', person=person, admin=admin, address=address, image=convertedImage)
         else:
             return "The admin is not present"
     return redirect('/')
@@ -540,6 +574,11 @@ def company_profile(person_id):
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM person WHERE person_id=%s",[person_id])
         person = cur.fetchone()
+        print("This is person====>>>", person)
+        if person[6] is not None:
+            convertedImage = b64encode(person[6]).decode("utf-8")
+        else:
+            convertedImage = " "
         cur.execute("SELECT * FROM company_details WHERE person_id=%s",[person_id])
         hr = cur.fetchone() 
         person = list(person)
@@ -548,7 +587,7 @@ def company_profile(person_id):
         cur.execute("SELECT * FROM address WHERE person_id=%s",[person_id])
         address = cur.fetchone() 
         if person and hr:
-            return render_template('dashboard/company-profile.html', person=person, hr=hr, address=address)
+            return render_template('dashboard/company-profile.html', person=person, hr=hr, address=address, image=convertedImage)
         else:
             return "The hr is not present"
     return redirect('/')
@@ -586,13 +625,13 @@ def student_profile(person_id):
             convertedImage = " "
         cur.execute("SELECT * FROM student WHERE person_id=%s",[person_id])
         student = cur.fetchone()
-        print("This is student====>>>", student)
+        # print("This is student====>>>", student)
         if student[6] is not None:
             resumePDF = b64encode(student[10]).decode('utf-8')
         else:
             resumePDF = " "
         
-        print("ResumePDF====>>>", student[10])
+        
 
         if person and student:
             return render_template('dashboard/student-profile.html', person=person, student=student, image=convertedImage, resumePDF=resumePDF, address=address, education=education)

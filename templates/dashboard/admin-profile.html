@@ -82,7 +82,7 @@
                 <div class="col-lg-4">
                     <div class="card shadow-sm">
                         <div class="card-header bg-transparent text-center">
-                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                            <img src="data:;base64,{{ image }}"
                                 alt="avatar" class="rounded-circle img-fluid profile_img" style="width: 150px;">
                             <h3 class="my-3 d-flex"
                                 style="width: max-content;margin: auto; font-weight: bold; color: #080808;">
@@ -187,30 +187,31 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function logout() {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to log out!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Do it!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/logout";
+   
+    <script>
+        function logout() {
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to log out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Do it!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = "/logout";
+            }
+          })
+          
         }
-      })
-      
-    }
-    
-    window.onload = function() {
-      if (!{{ session.get('loggedin', False) }}) {
-        window.location.href = "{{ url_for('login') }}";
-      }
-    };
-  </script>
+        
+        window.onload = function() {
+          if (!{{ session.get('loggedin', False) }}) {
+            window.location.href = "{{ url_for('login') }}";
+          }
+        };
+      </script>
   
 </body>
 </html>
