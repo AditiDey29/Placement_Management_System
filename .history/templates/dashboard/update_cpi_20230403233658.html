@@ -103,18 +103,16 @@
                           </div>
                     </div>
                 </div>
+                <
+              </div>be>
                 
-              </div>
-              <br>
-                
-              <div class="d-flex justify-content-center">
-                <button type="submit" class="btn btn-primary btn-lg" onclick="updateDetails()">Update</button>
+              <div class="d-flex justify-content-cente
                 </div>
                 
                 
                     </form>
                 </div>
-            </div>
+            
         </div>
     </section>
 
@@ -130,17 +128,33 @@
     <script>
         // Get the current year for the copyright
         $('#year').text(new Date().getFullYear());
-    </script>          
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </script>
+</body>
+
+</html>
+r mx-4 mb-3 mb-lg-4">
+                  <button type="submit" class="btn btn-primary btn-lg" onclick="deleteAccount()">Update</button>
+                  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function updateDetails() {
-            Swal.fire({
-                position: 'top-end',
-                title: 'Successfully Updated!',
-                showConfirmButton: false,
-                timer: 1500
-              })
+        function deleteAccount() {
+            Swal.fire(
+  'Data updated successfully',
+
+  'success'
+).then((result) => {
+    if (result.isConfirmed) {
+      
+    }
+  })
+          
+          
         }
+        
+        window.onload = function() {
+          if (!{{ session.get('loggedin', False) }}) {
+            window.location.href = "{{ url_for('login') }}";
+          }
+        };
     </script>
 </body>
 

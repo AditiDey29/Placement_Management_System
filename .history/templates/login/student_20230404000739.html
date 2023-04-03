@@ -604,13 +604,13 @@
     <script type="text/javascript">
       window.onload = function () {
         if ("{{ value }}") {
-          
-          Swal.fire("{{ value }}", "Try Again!", "error");
+          Swal.fire(err, "Try Again!", "error");
+          {% comment %} alert("{{ value }}"); {% endcomment %}
         }
       };
     </script>
     
- 
+  
     
     <script>
       // Get the current year for the copyright
