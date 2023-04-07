@@ -481,10 +481,12 @@ def show_job_profile(job_id):
         cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
         job = cur.fetchone()
         if job:
-            cur.execute("SELECT * FROM company_details WHERE job_id=%s", [job_id])
+            cur.execute(
+                "SELECT * FROM company_details WHERE job_id=%s", [job_id])
             company = cur.fetchone()
             if company:
-                cur.execute("select * from prog_details where job_id=%s", [job_id])
+                cur.execute(
+                    "select * from prog_details where job_id=%s", [job_id])
                 details = cur.fetchall()
                 # print(details)
                 if details:
@@ -502,31 +504,33 @@ def show_job_profile(job_id):
 
 @app.route('/update-details/<person_id>', methods=['GET', 'POST'])
 def update_cpi(person_id):
-    if session.get('loggedin'):
-        if request.method == 'POST':
-            # Fetch form data
-            userDetails = request.form
-            newcpi = userDetails['cpi']
-            experience = userDetails['experience']
-            try:
-                cur = mysql.connection.cursor()
-                cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", [
-                            newcpi, experience, person_id])
-                mysql.connection.commit()
-                print("Data for cpi updated successfully")
-                return redirect("/student-profile/"+str(person_id))
+    # if session.get('loggedin'):
+    if request.method == 'POST':
+        # Fetch form data
+        userDetails = request.form
+        newcpi = userDetails['cpi']
+        experience = userDetails['experience']
+        print("newcpi ", newcpi)
+        print("experience ", experience)
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", (
+                        newcpi, experience, person_id))
+            mysql.connection.commit()
+            print("Data for cpi updated successfully")
+            return redirect("/student-profile/"+str(person_id))
 
-            except mysql.connection.Error as error:
-                # print("Failed to insert data into MySQL table: {}".format(error))
-                mysql.connection.rollback()  # Roll back changes in case of error
-                # return "An error occurred while inserting data, Error is {}".format(error)
-                # print(error)
-                error = "{}".format(error)
-                # return "An occurred please try again later"
-                # alert = "Some error occurred please try again later"
-                return redirect("/student-profile/"+str(person_id))
-        return render_template('dashboard/update_cpi.html', person_id=person_id)
-    return redirect('/')
+        except mysql.connection.Error as error:
+            # print("Failed to insert data into MySQL table: {}".format(error))
+            mysql.connection.rollback()  # Roll back changes in case of error
+            # return "An error occurred while inserting data, Error is {}".format(error)
+            # print(error)
+            error = "{}".format(error)
+            # return "An occurred please try again later"
+            # alert = "Some error occurred please try again later"
+            return redirect("/student-profile/"+str(person_id))
+    return render_template('dashboard/update_cpi.html', person_id=person_id)
+
 
 @app.route('/student-eligible-jobs/<person_id>')
 def student_eligible_jobs(person_id):
@@ -551,7 +555,7 @@ def student_eligible_jobs(person_id):
                 error = "No jobs present!"
                 return render_template('dashboard/std_error.html', error=error, person_id=person_id)
         else:
-            error= "No such person exists"
+            error = "No such person exists"
             return render_template('dashboard/std_error.html', error=error, person_id=person_id)
     else:
         return redirect('/')
@@ -613,7 +617,7 @@ def company_profile(person_id):
         if person and hr:
             return render_template('dashboard/company-profile.html', person_id=person_id, person=person, hr=hr, address=address, image=convertedImage)
         else:
-            error= "The hr is not present"
+            error = "The hr is not present"
             return render_template('dashboard/cmp_error.html', error=error, person_id=person_id)
     return redirect('/')
 
@@ -712,7 +716,7 @@ def post_job(person_id):
             return render_template('dashboard/post-job.html', person_id=person_id)
     else:
         return redirect('/')
-    
+
 
 # ---------------------------------------------------ADMIN DASHBOARD--------------------------------------------------------
 
@@ -747,108 +751,121 @@ def admin_profile(person_id):
         if person and admin:
             return render_template('dashboard/admin-profile.html', person_id=person_id, person=person, admin=admin, address=address, image=convertedImage)
         else:
-            return "The admin is not present"
+            error = "The admin is not present"
+            return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
     return redirect('/')
 
 
 @app.route('/admin-add-company/<person_id>', methods=['GET', 'POST'])
 def admin_add_company(person_id):
-    if request.method == 'POST':
-        # Fetch form data
-        userDetails = request.form
-        email_id = userDetails['email_id'],
-        hr_status = userDetails['status'],
-        company_name = userDetails['company_name'],
-        # print(email_id, hr_status, company_name)
-        try:
-            cur = mysql.connection.cursor()
-            sql = "insert into hr (email_id, hr_status, company_name, parent_id) VALUES (%s, %s, %s, %s)"
-            values = (email_id[0], hr_status[0], company_name[0], person_id)
-            print(values)
-            cur.execute(sql, values)
-            mysql.connection.commit()
-            print("Data for hr_invited inserted successfully")
-            return redirect("/admin-dashboard/"+str(person_id))
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # Fetch form data
+            userDetails = request.form
+            email_id = userDetails['email_id'],
+            hr_status = userDetails['status'],
+            company_name = userDetails['company_name'],
+            # print(email_id, hr_status, company_name)
+            try:
+                cur = mysql.connection.cursor()
+                sql = "insert into hr (email_id, hr_status, company_name, parent_id) VALUES (%s, %s, %s, %s)"
+                values = (email_id[0], hr_status[0],
+                          company_name[0], person_id)
+                print(values)
+                cur.execute(sql, values)
+                mysql.connection.commit()
+                print("Data for hr_invited inserted successfully")
+                return redirect("/admin-dashboard/"+str(person_id))
 
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            # print(error)
-            error = "{}".format(error)
-            return "An occurred please try again later"
+            except mysql.connection.Error as error1:
+                # print("Failed to insert data into MySQL table: {}".format(error))
+                mysql.connection.rollback()  # Roll back changes in case of error
+                # return "An error occurred while inserting data, Error is {}".format(error)
+                # print(error)
+                error1 = "{}".format(error)
+                error = "An occurred please try again later"
+                return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
 
-    return render_template('dashboard/add_company.html')
+        return render_template('dashboard/add_company.html', person_id=person_id)
+    return redirect('/')
 
 
 @app.route('/edit-company-status/<person_id>', methods=['POST', 'GET'])
 def edit_company_status(person_id):
-    if request.method == 'POST':
-        # Fetch form data
-        userDetails = request.form
-        email_id = userDetails['email_id'],
-        hr_status = userDetails['new_status'],
-        try:
-            cur = mysql.connection.cursor()
-            cur.execute("UPDATE hr SET hr_status = %s WHERE email_id = %s", [
-                        hr_status, email_id])
-            mysql.connection.commit()
-            print("Data for hr_invited updated successfully")
-            return redirect("/admin-dashboard/"+str(person_id))
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # Fetch form data
+            userDetails = request.form
+            email_id = userDetails['email_id'],
+            hr_status = userDetails['new_status'],
+            try:
+                cur = mysql.connection.cursor()
+                cur.execute("UPDATE hr SET hr_status = %s WHERE email_id = %s", [
+                            hr_status, email_id])
+                mysql.connection.commit()
+                print("Data for hr_invited updated successfully")
+                return redirect("/admin-dashboard/"+str(person_id))
 
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            # print(error)
-            error = "{}".format(error)
-            return "An occurred please try again later"
-    return render_template('dashboard/edit-company-status.html')
+            except mysql.connection.Error as error1:
+                # print("Failed to insert data into MySQL table: {}".format(error))
+                mysql.connection.rollback()  # Roll back changes in case of error
+                # return "An error occurred while inserting data, Error is {}".format(error)
+                # print(error)
+                error1 = "{}".format(error)
+                error = "An occurred please try again later"
+                return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
+        return render_template('dashboard/edit-company-status.html', person_id=person_id)
+    return redirect('/')
 
 
 @app.route('/delete-company/<person_id>', methods=['GET', 'POST'])
 def delete_company(person_id):
-    if request.method == 'POST':
-        # Fetch form data
-        userDetails = request.form
-        email_id = userDetails['email_id'],
-        cur = mysql.connection.cursor()
-        try:
-            cur.execute("Select * from hr where email_id = %s", [email_id])
-            hr = cur.fetchone()
-            # print(hr)
-            if (hr):
-                cur.execute("DELETE FROM hr WHERE email_id = %s", [email_id])
-                mysql.connection.commit()
-                print("Data for hr deleted successfully")
-                return redirect("/admin-dashboard/"+str(person_id))
-            else:
-                error = "Email-ID do not exists"
-                return render_template('dashboard/delete_company.html', error=error)
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            # Fetch form data
+            userDetails = request.form
+            email_id = userDetails['email_id'],
+            cur = mysql.connection.cursor()
+            try:
+                cur.execute("Select * from hr where email_id = %s", [email_id])
+                hr = cur.fetchone()
+                # print(hr)
+                if (hr):
+                    cur.execute(
+                        "DELETE FROM hr WHERE email_id = %s", [email_id])
+                    mysql.connection.commit()
+                    print("Data for hr deleted successfully")
+                    return redirect("/admin-dashboard/"+str(person_id))
+                else:
+                    error = "Email-ID do not exists"
+                    return render_template('dashboard/delete_company.html', error=error, person_id=person_id)
 
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            # print(error)
-            error = "{}".format(error)
-            return render_template('dashboard/delete_company.html', error=error)
-    return render_template('dashboard/delete_company.html')
+            except mysql.connection.Error as error:
+                # print("Failed to insert data into MySQL table: {}".format(error))
+                mysql.connection.rollback()  # Roll back changes in case of error
+                # return "An error occurred while inserting data, Error is {}".format(error)
+                # print(error)
+                error = "{}".format(error)
+                return render_template('dashboard/delete_company.html', error=error, person_id=person_id)
+        return render_template('dashboard/delete_company.html', person_id=person_id)
+    return redirect('/')
 
 
 @app.route('/all-jobs-posted/<job_id>')
 def show_job_posted_profile(job_id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
-    job = cur.fetchone()
-    if job:
-        cur.execute("select * from prog_details where job_id=%s", [job_id])
-        details = cur.fetchall()
-        if details:
-            return render_template('dashboard/one_job_details.html', job=job, details=details)
-        return render_template('dashboard/one_job_detail_1.html', job=job)
-    else:
-        return "No Job ID exists with this id"
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
+        job = cur.fetchone()
+        if job:
+            cur.execute("select * from prog_details where job_id=%s", [job_id])
+            details = cur.fetchall()
+            if details:
+                return render_template('dashboard/one_job_details.html', job=job, details=details)
+            return render_template('dashboard/one_job_detail_1.html', job=job)
+        else:
+            return "No Job ID exists with this id"
+    return redirect('/')
 
 
 @app.route('/eligible_jobs/<job_id>/<person_id>', methods=['GET', 'POST'])
@@ -860,9 +877,10 @@ def show_eligible_job_profile(job_id, person_id):
                 "select * from applies_to where person_id=%s and job_id=%s", [person_id, job_id])
             jobs = cur.fetchall()
             if (jobs):
-                return "You already applied for this job"
+                error = "You already applied for this job"
+                return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
             else:
-                print("no jobs")
+                # print("no jobs")
                 try:
                     sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
                     values = (job_id, person_id, "1", "Applied")
@@ -889,9 +907,12 @@ def show_eligible_job_profile(job_id, person_id):
                     else:
                         return render_template('dashboard/one_job_details.html', job=job, company=company, apply=1, job_id=job_id, person_id=person_id)
                 else:
-                    return "not mapped to a comapny"
+                    error = "not mapped to a comapny"
+                    return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
             else:
-                return "No Job ID exists with this id"
+                error = "No Job ID exists with this id"
+                return render_template('dashboard/adm_error.html', error=error, person_id=person_id)
+
     else:
         return redirect('/')
 
@@ -907,20 +928,6 @@ def apply(job_id, person_id):
                 jobs = cur.fetchall()
             except mysql.connection.Error as error:
                 jobs = error
-        print(jobs)
-        # print(jobs)
-        # if (jobs):
-        #     alert = "You already applied for this job"
-        #     return alert
-        # else:
-        # try:
-        #     sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
-        #     values = (job_id, person_id, "1", "Applied")
-        #     cur.execute(sql, values)
-        #     mysql.connection.commit()
-        #     return redirect("/apply/"+str(job_id)+"/"+str(person_id))
-        # except mysql.connection.Error as error:
-        #     return error
         return jobs
 
 

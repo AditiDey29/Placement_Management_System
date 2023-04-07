@@ -1,5 +1,12 @@
-<style>
-    * {
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
         margin: 0;
         padding: 0;
       }
@@ -11,10 +18,11 @@
       }
 
       nav ul li {
-        display: inline-block;
+        
         line-height: 80px;
         margin: 0 5px;
       }
+
       nav ul {
         float: right;
         margin-right: 55px;
@@ -103,56 +111,59 @@
           left: 0;
         }
       }
-</style>
+    </style>
+  </head>
+  <body>
+    <nav>
+      <input type="checkbox" class="myCheckBox" id="myCheck" />
+      <label for="myCheck" class="checkButton">
+        <i class="fa fa-bars"></i>
+      </label>
+      <label class="logo">Company</label>
+      <ul style="display: inline-block;">
+        <li style="display: inline-block;">
+          <a href="/company-profile/{{person_id}}">Profile</a>
+        </li>
+        <li style="display: inline-block;"><a href="/post-job/{{person_id}}">Post Job</a></li>
 
-<nav>
-  <input type="checkbox" class="myCheckBox" id="myCheck" />
-  <label for="myCheck" class="checkButton">
-    <i class="fa fa-bars"></i>
-  </label>
-  <label class="logo">Company</label>
-  <ul>
-    <li>
-      <a href="/company-profile/{{person_id}}">Profile</a>
-    </li>
-    <li><a href="/post-job/{{person_id}}">Post Job</a></li>
+        <li style="display: inline-block;">
+          <a href="/jobs-posted/{{person_id}}">Jobs Posted</a>
+        </li>
+        <button style="display: inline-block;"
+          class="btn btn-danger"
+          style="background-color: red"
+          type="button"
+          onclick="logout()"
+        >
+          Log Out
+        </button>
+      </ul>
+    </nav>
 
-    <li>
-      <a href="/jobs-posted/{{person_id}}">Jobs Posted</a>
-    </li>
-    <button
-      class="btn btn-danger"
-      style="background-color: red"
-      type="button"
-      onclick="logout()"
-    >
-      Log Out
-    </button>
-  </ul>
-</nav>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      function logout() {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You want to log out!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, Do it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/logout";
+          }
+        })
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  function logout() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You want to log out!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Do it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = "/logout";
       }
-    })
 
-  }
-
-  window.onload = function() {
-    if (!{{ session.get('loggedin', False) }}) {
-      window.location.href = "{{ url_for('login') }}";
-    }
-  };
-</script>
+      window.onload = function() {
+        if (!{{ session.get('loggedin', False) }}) {
+          window.location.href = "{{ url_for('login') }}";
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -48,12 +48,17 @@
             background-color: #437FC7;
             color: #ECF0F5;
         }
+        #blueDIV {
+          position: absolute;
+          padding: 10px;
+          right: 0px;
+        }
     </style>
 </head>
 
 <body style="background-color: #EDF6FF">
     <!-- START HERE -->
-
+    {% include './partials/adm_navbar.html' %}
     <section class="h-100">
 
         <div class="container-fluid">
@@ -65,7 +70,7 @@
                         alt="Sample photo" class="img-fluid"
                         style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem;" />
                 </div>
-                <div class="col-lg-6 col-md-12 offset-0 offset-lg-6">
+                <div class="col-lg-6 col-md-12 offset-0 offset-lg-6" id="blueDIV">
                     <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4" style="color: #437FC7">
                         Invite HR
                     </p>
@@ -123,8 +128,6 @@
                   <button type="submit" class="btn btn-primary btn-lg" onclick="xyz()">Add</button>
               </div>
                 </div>
-                
-                
                     </form>
                 </div>
             </div>
