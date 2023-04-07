@@ -39,112 +39,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@app.route('/all_tables')
-def get_tables():
-    return render_template('all_tables.html')
-
-
-@app.route('/address-table')
-def address_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM address")
-    address = cur.fetchall()
-    return render_template('all_tables/address_table.html', address=address)
-
-
-@app.route('/admin-table')
-def admin_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM administrator")
-    admin = cur.fetchall()
-    return render_template('all_tables/admin_table.html', admin=admin)
-
-
-@app.route('/company-details-table')
-def company_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM company_details")
-    company_details = cur.fetchall()
-    return render_template('all_tables/company-details-table.html', company_details=company_details)
-
-
-@app.route('/educational-details-table')
-def educational_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM company_details")
-    educational_details = cur.fetchall()
-    return render_template('all_tables/educational-details-table.html', educational_details=educational_details)
-
-
-@app.route('/hr-table')
-def hr_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM hr")
-    hr = cur.fetchall()
-    # print(hr)
-    return render_template('all_tables/hr-table.html', hr=hr)
-
-
-@app.route('/rename', methods=['GET', 'POST'])
-def rename():
-    if (request.method == 'POST'):
-        details = request.form
-        name1 = details['name1']
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'placement_management_system'")
-        tables = cur.fetchall()
-        print(tables[0][0])
-        table_name = tables[0][0]
-        new_name = name1
-        query = f"ALTER TABLE {table_name} RENAME TO {new_name}"
-        cur.execute(query)
-        cur.execute(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'placement_management_system'")
-        tables1 = cur.fetchall()
-        query = f"ALTER TABLE {new_name} RENAME TO {table_name}"
-        cur.execute(query)
-        return render_template('rename_table.html', tables=tables, tables1=tables1)
-
-    cur = mysql.connection.cursor()
-    cur.execute(
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'placement_management_system'")
-    tables = cur.fetchall()
-    return render_template('rename_table.html', tables=tables)
-
-
-@app.route('/job-profile-table')
-def job_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM job_profile")
-    job_profile = cur.fetchall()
-    return render_template('all_tables/job-profile-table.html', job_profile=job_profile)
-
-
-@app.route('/person-table')
-def person_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM person")
-    person = cur.fetchall()
-    return render_template('all_tables/person-table.html', person=person)
-
-
-@app.route('/program-details')
-def program_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM prog_details")
-    prog_details = cur.fetchall()
-    return render_template('all_tables/program-details.html', prog_details=prog_details)
-
-
-@app.route('/student-table')
-def student_table():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM student")
-    student = cur.fetchall()
-    return render_template('all_tables/student-table.html', student=student)
-
-
+# ---------------------------------------------------LOGIN & REGISTER & LOGOUT--------------------------------------------------------------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
     print(request)
@@ -198,6 +93,7 @@ def register():
         return render_template('login/register.html')
 
 
+# -----------------------------COMPANY REP REGISTRATION----------------------------------------------------------------------
 @app.route('/company_representative-registration', methods=['GET', 'POST'])
 def hr_reg():
     if request.method == 'POST':
@@ -338,6 +234,7 @@ def hr_reg():
         return render_template('login/company_rep.html')
 
 
+# -------------------------------------STUDENT REGISTRATION------------------------------------------------------------------
 @app.route('/student-registration', methods=['GET', 'POST'])
 def student_reg():
     print(request.method)
@@ -447,6 +344,7 @@ def student_reg():
         return render_template('login/student.html')
 
 
+# --------------------------------ADMIN REGISTRATION--------------------------------------------------------------------------
 @app.route('/administrator-registration', methods=['GET', 'POST'])
 def admin_reg():
     print(request.method)
@@ -485,7 +383,7 @@ def admin_reg():
         designation = userDetails['designation']
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
-      
+
         try:
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             values = (person_id, first_name, middle_name, last_name, json.dumps(
@@ -514,81 +412,183 @@ def admin_reg():
             # print("Failed to insert data into MySQL table: {}".format(error))
             mysql.connection.rollback()  # Roll back changes in case of error
             error = "{}".format(error)
-          
+
             print(error)
             return render_template('login/admin.html', value=error)
             # return "An error occurred while inserting data, Error is {}".format(error)
-
-        cur.close()
-
     else:
         print('redirecting without saving the data!')
         return render_template('login/admin.html')
 
 
+# ----------------------------------------------------STUDENT DASHBOARD---------------------------------------------------
 @app.route('/student-dashboard/<person_id>')
 def student_dashboard(person_id):
     if session.get('loggedin'):
-        # return render_template('dashboard/student_view.html', person_id=person_id)
         return redirect('/student-profile/'+str(person_id))
     return redirect('/')
-    # return render_template('dashboard/student_view.html', person_id=person_id)
 
 
+@app.route('/student-profile/<person_id>')
+def student_profile(person_id):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM person WHERE person_id=%s", [person_id])
+        person = cur.fetchone()
+        cur.execute("SELECT * FROM address WHERE person_id=%s", [person_id])
+        address = cur.fetchone()
+        cur.execute(
+            "SELECT * FROM educational_details WHERE person_id=%s", [person_id])
+        education = cur.fetchone()
+        # print("This is person====>>>", person)
+        if person[6] is not None:
+            convertedImage = b64encode(person[6]).decode("utf-8")
+        else:
+            convertedImage = " "
+        cur.execute("SELECT * FROM student WHERE person_id=%s", [person_id])
+        student = cur.fetchone()
+        # print("This is student====>>>", student)
+        if student[6] is not None:
+            resumePDF = b64encode(student[10]).decode('utf-8')
+        else:
+            resumePDF = " "
+
+        if person and student:
+            return render_template('dashboard/student-profile.html', person_id=person_id, person=person, student=student, image=convertedImage, resumePDF=resumePDF, address=address, education=education)
+        else:
+            error = "The student is not present"
+            return render_template('dashboard/std_error.html', error=error, person_id=person_id)
+    return redirect('/')
+
+
+@app.route('/student-all-jobs/<person_id>')
+def student_all_jobs(person_id):
+    if session.get('loggedin'):
+        cur = mysql.connection.cursor()
+        resultValue = cur.execute("SELECT * FROM job_profile")
+        if resultValue > 0:
+            jobDetails = cur.fetchall()
+            return render_template('dashboard/all_jobs.html', jobDetails=jobDetails, person_id=person_id)
+        return render_template('dashboard/all_jobs.html', person_id=person_id)
+    else:
+        return redirect('/')
+
+
+@app.route('/jobs/<job_id>')
+def show_job_profile(job_id):
+    if session.get('loggedin'):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
+        job = cur.fetchone()
+        if job:
+            cur.execute("SELECT * FROM company_details WHERE job_id=%s", [job_id])
+            company = cur.fetchone()
+            if company:
+                cur.execute("select * from prog_details where job_id=%s", [job_id])
+                details = cur.fetchall()
+                # print(details)
+                if details:
+                    return render_template('dashboard/one_job_details.html', job=job, company=company, details=details)
+                else:
+                    return render_template('dashboard/one_job_details.html', job=job, company=company)
+            else:
+                return render_template('dashboard/one_job_details.html', job=job)
+        else:
+            error = "No Job ID exists with this id"
+            return render_template('dashboard/std_error.html', error=error)
+    else:
+        return redirect('/')
+
+
+@app.route('/update-details/<person_id>', methods=['GET', 'POST'])
+def update_cpi(person_id):
+    if session.get('loggedin'):
+        if request.method == 'POST':
+            # Fetch form data
+            userDetails = request.form
+            newcpi = userDetails['cpi']
+            experience = userDetails['experience']
+            try:
+                cur = mysql.connection.cursor()
+                cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", [
+                            newcpi, experience, person_id])
+                mysql.connection.commit()
+                print("Data for cpi updated successfully")
+                return redirect("/student-profile/"+str(person_id))
+
+            except mysql.connection.Error as error:
+                # print("Failed to insert data into MySQL table: {}".format(error))
+                mysql.connection.rollback()  # Roll back changes in case of error
+                # return "An error occurred while inserting data, Error is {}".format(error)
+                # print(error)
+                error = "{}".format(error)
+                # return "An occurred please try again later"
+                # alert = "Some error occurred please try again later"
+                return redirect("/student-profile/"+str(person_id))
+        return render_template('dashboard/update_cpi.html', person_id=person_id)
+    return redirect('/')
+
+@app.route('/student-eligible-jobs/<person_id>')
+def student_eligible_jobs(person_id):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM student where person_id=%s", [person_id])
+        person = cur.fetchone()
+        if (person):
+            # print("inside person")
+            std_cpi = (person[1])
+            # print(type(std_cpi))
+            # cur.execute("SELECT * FROM job_profile where cutoff_cpi <= 8.0")
+
+            cur.execute(
+                "SELECT * FROM job_profile where cutoff_cpi <= "+str(std_cpi))
+            resultValue = cur.fetchall()
+
+            if len(resultValue) > 0:
+                jobDetails = resultValue
+                return render_template('dashboard/eligible_jobs.html', jobDetails=jobDetails, person_id=person_id)
+            else:
+                error = "No jobs present!"
+                return render_template('dashboard/std_error.html', error=error, person_id=person_id)
+        else:
+            error= "No such person exists"
+            return render_template('dashboard/std_error.html', error=error, person_id=person_id)
+    else:
+        return redirect('/')
+
+
+@app.route('/student-applied-jobs/<person_id>')
+def student_applied_jobs(person_id):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        resultValue = cur.execute(
+            "SELECT * FROM applies_to where person_id=%s", [person_id])
+        if resultValue > 0:
+            jobs = cur.fetchall()
+            jobDetails = []
+            for i in range(0, len(jobs)):
+                jobId = jobs[i][0]
+                cur = mysql.connection.cursor()
+                result = cur.execute(
+                    "SELECT * FROM job_profile where job_id=%s", [jobId])
+                if result > 0:
+                    detail = cur.fetchone()
+                    jobDetails.append(detail)
+            return render_template('dashboard/all_jobs.html', jobDetails=jobDetails, person_id=person_id)
+        else:
+            error = "No Jobs Present!"
+            return render_template('dashboard/std_error.html', error=error, person_id=person_id)
+    else:
+        return redirect('/')
+
+
+# -------------------------------------------------COMPANY DASHBOARD---------------------------------------------------------
 @app.route('/company-dashboard/<person_id>')
 def company_dashboard(person_id):
     if session.get('loggedin'):
         return redirect('/company-profile/'+str(person_id))
     return redirect('/')
     # return render_template('dashboard/company_view.html', person_id=person_id)
-
-
-@app.route('/admin-dashboard/<person_id>')
-def admin_dashboard(person_id):
-    if session.get('loggedin'):
-        return render_template('dashboard/admin_view.html', person_id=person_id)
-    return redirect('/')
-    # return render_template('dashboard/admin_view.html', person_id=person_id)
-
-
-@app.route('/admin-profile/<person_id>')
-def admin_profile(person_id):
-    if 'loggedin' in session:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM person WHERE person_id=%s", [person_id])
-        person = cur.fetchone()
-        print("This is person====>>>", person)
-        if person[6] is not None:
-            convertedImage = b64encode(person[6]).decode("utf-8")
-        else:
-            convertedImage = " "
-        cur.execute(
-            "SELECT * FROM administrator WHERE person_id=%s", [person_id])
-        admin = cur.fetchone()
-        cur.execute("SELECT * FROM address WHERE person_id=%s", [person_id])
-        address = cur.fetchone()
-        person = list(person)
-        person[4] = json.loads(person[4])
-        person = tuple(person)
-        if person and admin:
-            return render_template('dashboard/admin-profile.html', person=person, admin=admin, address=address, image=convertedImage)
-        else:
-            return "The admin is not present"
-    return redirect('/')
-    # cur = mysql.connection.cursor()
-    # cur.execute("SELECT * FROM person WHERE person_id=%s",[person_id])
-    # person = cur.fetchone()
-    # cur.execute("SELECT * FROM administrator WHERE person_id=%s",[person_id])
-    # admin = cur.fetchone()
-    # cur.execute("SELECT * FROM address WHERE person_id=%s",[person_id])
-    # address = cur.fetchone()
-    # person = list(person)
-    # person[4] = json.loads(person[4])
-    # person = tuple(person)
-    # if person and admin:
-    #     return render_template('dashboard/admin-profile.html', person=person, admin=admin, address=address)
-    # else:
-    #     return "The admin is not present"
 
 
 @app.route('/company-profile/<person_id>')
@@ -613,90 +613,142 @@ def company_profile(person_id):
         if person and hr:
             return render_template('dashboard/company-profile.html', person_id=person_id, person=person, hr=hr, address=address, image=convertedImage)
         else:
-            return "The hr is not present"
+            error= "The hr is not present"
+            return render_template('dashboard/cmp_error.html', error=error, person_id=person_id)
     return redirect('/')
-    # cur = mysql.connection.cursor()
-    # cur.execute("SELECT * FROM person WHERE person_id=%s",[person_id])
-    # person = cur.fetchone()
-    # cur.execute("SELECT * FROM company_details WHERE person_id=%s",[person_id])
-    # hr = cur.fetchone()
-    # person = list(person)
-    # person[4] = json.loads(person[4])
-    # person = tuple(person)
-    # cur.execute("SELECT * FROM address WHERE person_id=%s",[person_id])
-    # address = cur.fetchone()
-    # if person and hr:
-    #     return render_template('dashboard/company-profile.html', person=person, hr=hr, address=address)
-    # else:
-    #     return "The hr is not present"
 
 
 @app.route('/jobs-posted/<person_id>')
 def posted_jobs(person_id):
     if 'loggedin' in session:
         cur = mysql.connection.cursor()
-        resultValue = cur.execute("SELECT * FROM jobs_posted WHERE person_id=%s", [person_id])
+        resultValue = cur.execute(
+            "SELECT * FROM jobs_posted WHERE person_id=%s", [person_id])
         if resultValue > 0:
             jobs = cur.fetchall()
             jobDetails = []
             for i in range(0, len(jobs)):
                 jobId = jobs[i][0]
                 cur = mysql.connection.cursor()
-                result = cur.execute("SELECT * FROM job_profile where job_id=%s", [jobId])
+                result = cur.execute(
+                    "SELECT * FROM job_profile where job_id=%s", [jobId])
                 if result > 0:
                     detail = cur.fetchone()
                     jobDetails.append(detail)
-            return render_template('dashboard/all_jobs_posted.html', jobDetails=jobDetails)
+            return render_template('dashboard/all_jobs_posted.html', jobDetails=jobDetails, person_id=person_id)
         else:
-            return "No jobs present"
+            error = "No jobs posted"
+            return render_template('dashboard/cmp_error.html', error=error, person_id=person_id)
     return redirect('/')
 
 
-@app.route('/student-profile/<person_id>')
-def student_profile(person_id):
+@app.route('/post-job/<person_id>', methods=['GET', 'POST'])
+def post_job(person_id):
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            userDetails = request.form
+            job_id = userDetails['job_id'],
+            job_designation = userDetails['job_designation'],
+            job_description = userDetails['job_description'],
+            job_location = userDetails['job_location'],
+            service_bond = userDetails['service_bond'],
+            terms_and_conditions = userDetails['terms_and_conditions'],
+            six_month_intern_possibility = userDetails['six_month_intern_possibility'],
+            early_onboarding_possibility = userDetails['early_onboarding_possibility'],
+            particularly_early_onboarding_required = userDetails[
+                'particularly_early_onboarding_required'],
+            early_graduate_students_are_excluded = userDetails['early_graduate_students_are_excluded'],
+            shortlist_from_resume = userDetails['shortlist_from_resume'],
+            ppt = userDetails['ppt'],
+            technical_test = userDetails['technical_test'],
+            psychometric_test = userDetails['psychometric_test'],
+            group_discussion = userDetails['group_discussion'],
+            technical_interviews = userDetails['technical_interviews'],
+            hr_interviews = userDetails['hr_interviews'],
+            cutoff_cpi = userDetails['cutoff_cpi'],
+            start_date = userDetails['start_date'],
+            end_date = userDetails['end_date'],
+            aptitude_test = userDetails['aptitude_test'],
+            cur = mysql.connection.cursor()
+
+            cur.execute(
+                "select * from company_details where person_id = %s", [person_id])
+            job = cur.fetchone()
+
+            try:
+                sql2 = "INSERT INTO job_profile(job_id, job_designation, job_description, job_location, cutoff_cpi, service_bond, terms_and_condition, six_month_intern_possibility, early_onboarding_possibility, particularly_early_onboarding_required,early_graduate_students_are_excluded, current_status, start_date, end_date, shortlist_from_resume,eligible_minor_disc,ppt ,eligible_major_disc,technical_test ,aptitude_test,psychometric_test,group_discussion,technical_interviews,hr_interviews) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                values2 = (job_id, job_designation, job_description, job_location, cutoff_cpi, service_bond, terms_and_conditions, six_month_intern_possibility, early_onboarding_possibility, particularly_early_onboarding_required,
+                           early_graduate_students_are_excluded, "Job Posted", start_date, end_date, shortlist_from_resume,  "11110001001011", ppt,  "11110001001011", technical_test, aptitude_test, psychometric_test, group_discussion, technical_interviews, hr_interviews)
+                cur.execute(sql2, values2)
+                mysql.connection.commit()
+                print("Data for job profile inserted successfully")
+                try:
+
+                    sql1 = "INSERT INTO company_details (person_id, job_id, company_rep, company_name, website, type_of_org, industry_sector, no_of_members, no_of_rooms_required, start_date, end_date,parent_id_1, parent_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                    values1 = (job_id, person_id, job[2], job[3], job[4], job[5],
+                               job[6], '1', '1', job[9], job[10], job_id, person_id)
+                    cur.execute(sql1, values1)
+                    print("Data for company_details inserted successfully")
+                    sql2 = "insert into jobs_posted(job_id, person_id) values (%s, %s)"
+                    values2 = (job_id, person_id)
+                    cur.execute(sql2, values2)
+                    print("Data for jobs_posted inserted successfully")
+                    mysql.connection.commit()
+
+                except mysql.connection.Error as error:
+                    mysql.connection.rollback()
+                    error = "{}".format(error)
+                    print(error)
+
+            except mysql.connection.Error as error:
+                # print("Failed to insert data into MySQL table: {}".format(error))
+                mysql.connection.rollback()  # Roll back changes in case of error
+                # return "An error occurred while inserting data, Error is {}".format(error)
+                error = "{}".format(error)
+                # return render_template('login/company_rep.html', value=error)
+
+            return redirect('/jobs-posted/'+str(person_id))
+        else:
+            return render_template('dashboard/post-job.html', person_id=person_id)
+    else:
+        return redirect('/')
+    
+
+# ---------------------------------------------------ADMIN DASHBOARD--------------------------------------------------------
+
+
+@app.route('/admin-dashboard/<person_id>')
+def admin_dashboard(person_id):
+    if session.get('loggedin'):
+        return redirect('/admin-profile/'+str(person_id))
+    return redirect('/')
+    # return render_template('dashboard/admin_view.html', person_id=person_id)
+
+
+@app.route('/admin-profile/<person_id>')
+def admin_profile(person_id):
     if 'loggedin' in session:
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM person WHERE person_id=%s", [person_id])
         person = cur.fetchone()
-        cur.execute("SELECT * FROM address WHERE person_id=%s", [person_id])
-        address = cur.fetchone()
-        cur.execute(
-            "SELECT * FROM educational_details WHERE person_id=%s", [person_id])
-        education = cur.fetchone()
         print("This is person====>>>", person)
         if person[6] is not None:
             convertedImage = b64encode(person[6]).decode("utf-8")
         else:
             convertedImage = " "
-        cur.execute("SELECT * FROM student WHERE person_id=%s", [person_id])
-        student = cur.fetchone()
-        # print("This is student====>>>", student)
-        if student[6] is not None:
-            resumePDF = b64encode(student[10]).decode('utf-8')
+        cur.execute(
+            "SELECT * FROM administrator WHERE person_id=%s", [person_id])
+        admin = cur.fetchone()
+        cur.execute("SELECT * FROM address WHERE person_id=%s", [person_id])
+        address = cur.fetchone()
+        person = list(person)
+        person[4] = json.loads(person[4])
+        person = tuple(person)
+        if person and admin:
+            return render_template('dashboard/admin-profile.html', person_id=person_id, person=person, admin=admin, address=address, image=convertedImage)
         else:
-            resumePDF = " "
-
-        if person and student:
-            return render_template('dashboard/student-profile.html', person_id=person_id, person=person, student=student, image=convertedImage, resumePDF=resumePDF, address=address, education=education)
-        else:
-            return "The student is not present"
+            return "The admin is not present"
     return redirect('/')
-    # cur = mysql.connection.cursor()
-    # cur.execute("SELECT * FROM person WHERE person_id=%s",[person_id])
-    # person = cur.fetchone()
-    # cur.execute("SELECT * FROM student WHERE person_id=%s",[person_id])
-    # student = cur.fetchone()
-    # cur.execute("SELECT * FROM address WHERE person_id=%s",[person_id])
-    # address = cur.fetchone()
-    # cur.execute("SELECT * FROM educational_details WHERE person_id=%s",[person_id])
-    # education = cur.fetchone()
-    # person = list(person)
-    # person[4] = json.loads(person[4])
-    # person = tuple(person)
-    # if person and student and address:
-    #     return render_template('dashboard/student-profile.html', person=person, student=student, address=address, education=education)
-    # else:
-    #     return "The student is not present"
 
 
 @app.route('/admin-add-company/<person_id>', methods=['GET', 'POST'])
@@ -784,38 +836,6 @@ def delete_company(person_id):
     return render_template('dashboard/delete_company.html')
 
 
-@app.route('/student-all-jobs')
-def student_all_jobs():
-    cur = mysql.connection.cursor()
-    resultValue = cur.execute("SELECT * FROM job_profile")
-    if resultValue > 0:
-        jobDetails = cur.fetchall()
-        return render_template('dashboard/all_jobs.html', jobDetails=jobDetails)
-    return render_template('dashboard/all_jobs.html')
-
-
-@app.route('/jobs/<job_id>')
-def show_job_profile(job_id):
-    cur = mysql.connection.cursor()
-
-    cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
-    job = cur.fetchone()
-    if job:
-        cur.execute("SELECT * FROM company_details WHERE job_id=%s", [job_id])
-        company = cur.fetchone()
-        if company:
-            cur.execute("select * from prog_details where job_id=%s", [job_id])
-            details = cur.fetchall()
-            print(details)
-            if details:
-                return render_template('dashboard/one_job_details.html', job=job, company=company, details=details)
-            else:
-                return render_template('dashboard/one_job_details.html', job=job, company=company)
-        else:
-            return render_template('dashboard/one_job_details.html', job=job)
-    else:
-        return "No Job ID exists with this id"
-
 @app.route('/all-jobs-posted/<job_id>')
 def show_job_posted_profile(job_id):
     cur = mysql.connection.cursor()
@@ -831,48 +851,49 @@ def show_job_posted_profile(job_id):
         return "No Job ID exists with this id"
 
 
-
-
 @app.route('/eligible_jobs/<job_id>/<person_id>', methods=['GET', 'POST'])
 def show_eligible_job_profile(job_id, person_id):
-    if request.method == 'POST':
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "select * from applies_to where person_id=%s and job_id=%s", [person_id, job_id])
-        jobs = cur.fetchall()
-        if (jobs):
-            return "You already applied for this job"
-        else:
-            print("no jobs")
-            try:
-                sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
-                values = (job_id, person_id, "1", "Applied")
-                cur.execute(sql, values)
-                mysql.connection.commit()
-                return redirect("/eligible_jobs/"+str(job_id)+"/"+str(person_id))
-            except mysql.connection.Error as error:
-                return error
-    else:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
-        job = cur.fetchone()
-        if job:
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            cur = mysql.connection.cursor()
             cur.execute(
-                "SELECT * FROM company_details WHERE job_id=%s", [job_id])
-            company = cur.fetchone()
-            if company:
-                cur.execute(
-                    "select * from prog_details where job_id=%s", [job_id])
-                details = cur.fetchall()
-                print(details)
-                if details:
-                    return render_template('dashboard/one_job_details.html', job=job, company=company, details=details, apply=1, job_id=job_id, person_id=person_id)
-                else:
-                    return render_template('dashboard/one_job_details.html', job=job, company=company, apply=1, job_id=job_id, person_id=person_id)
+                "select * from applies_to where person_id=%s and job_id=%s", [person_id, job_id])
+            jobs = cur.fetchall()
+            if (jobs):
+                return "You already applied for this job"
             else:
-                return "not mapped to a comapny"
+                print("no jobs")
+                try:
+                    sql = "Insert into applies_to (job_id, person_id, is_protected, curr_status) values (%s, %s, %s, %s)"
+                    values = (job_id, person_id, "1", "Applied")
+                    cur.execute(sql, values)
+                    mysql.connection.commit()
+                    return redirect("/student-applied-jobs/"+str(person_id))
+                except mysql.connection.Error as error:
+                    return error
         else:
-            return "No Job ID exists with this id"
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
+            job = cur.fetchone()
+            if job:
+                cur.execute(
+                    "SELECT * FROM company_details WHERE job_id=%s", [job_id])
+                company = cur.fetchone()
+                if company:
+                    cur.execute(
+                        "select * from prog_details where job_id=%s", [job_id])
+                    details = cur.fetchall()
+                    print(details)
+                    if details:
+                        return render_template('dashboard/one_job_details.html', job=job, company=company, details=details, apply=1, job_id=job_id, person_id=person_id)
+                    else:
+                        return render_template('dashboard/one_job_details.html', job=job, company=company, apply=1, job_id=job_id, person_id=person_id)
+                else:
+                    return "not mapped to a comapny"
+            else:
+                return "No Job ID exists with this id"
+    else:
+        return redirect('/')
 
 
 @app.route('/apply/<job_id>/<person_id>', methods=['GET', 'POST'])
@@ -952,161 +973,7 @@ def delete_account(person_id):
     return redirect(url_for('login'))
 
 
-@app.route('/update-details/<person_id>', methods=['GET', 'POST'])
-def update_cpi(person_id):
-    if request.method == 'POST':
-        # Fetch form data
-        userDetails = request.form
-        newcpi = userDetails['cpi']
-        experience = userDetails['experience']
-        try:
-            cur = mysql.connection.cursor()
-            cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", [
-                        newcpi, experience, person_id])
-            mysql.connection.commit()
-            print("Data for cpi updated successfully")
-            return redirect("/student-profile/"+str(person_id))
-
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            # print(error)
-            error = "{}".format(error)
-            # return "An occurred please try again later"
-            alert = "Some error occurred please try again later"
-            return redirect("/student-profile/"+str(person_id))
-
-    return render_template('dashboard/update_cpi.html')
-
-
-@app.route('/student-eligible-jobs/<person_id>')
-def student_eligible_jobs(person_id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM student where person_id=%s", [person_id])
-    person = cur.fetchone()
-    # return person
-    if (person):
-        # print("inside person")
-        std_cpi = (person[1])
-        # print(type(std_cpi))
-        # cur.execute("SELECT * FROM job_profile where cutoff_cpi <= 8.0")
-
-        cur.execute(
-            "SELECT * FROM job_profile where cutoff_cpi <= "+str(std_cpi))
-        resultValue = cur.fetchall()
-
-        if len(resultValue) > 0:
-            jobDetails = resultValue
-            return render_template('dashboard/eligible_jobs.html', jobDetails=jobDetails, person_id=person_id)
-        else:
-            return "No jobs present"
-    else:
-        return "No such person exists"
-
-
-@app.route('/post-job/<person_id>', methods=['GET', 'POST'])
-def post_job(person_id):
-    if request.method == 'POST':
-        userDetails = request.form
-        job_id = userDetails['job_id'],
-        job_designation = userDetails['job_designation'],
-        job_description = userDetails['job_description'],
-        job_location = userDetails['job_location'],
-        service_bond = userDetails['service_bond'],
-        terms_and_conditions = userDetails['terms_and_conditions'],
-        six_month_intern_possibility = userDetails['six_month_intern_possibility'],
-        early_onboarding_possibility = userDetails['early_onboarding_possibility'],
-        particularly_early_onboarding_required = userDetails[
-            'particularly_early_onboarding_required'],
-        early_graduate_students_are_excluded = userDetails['early_graduate_students_are_excluded'],
-        shortlist_from_resume = userDetails['shortlist_from_resume'],
-        ppt = userDetails['ppt'],
-        technical_test = userDetails['technical_test'],
-        psychometric_test = userDetails['psychometric_test'],
-        group_discussion = userDetails['group_discussion'],
-        technical_interviews = userDetails['technical_interviews'],
-        hr_interviews = userDetails['hr_interviews'],
-        cutoff_cpi = userDetails['cutoff_cpi'],
-        start_date = userDetails['start_date'],
-        end_date = userDetails['end_date'],
-        aptitude_test = userDetails['aptitude_test'],
-        cur = mysql.connection.cursor()
-
-        cur.execute(
-            "select * from company_details where person_id = %s", [person_id])
-        job = cur.fetchone()
-
-        try:
-            sql2 = "INSERT INTO job_profile(job_id, job_designation, job_description, job_location, cutoff_cpi, service_bond, terms_and_condition, six_month_intern_possibility, early_onboarding_possibility, particularly_early_onboarding_required,early_graduate_students_are_excluded, current_status, start_date, end_date, shortlist_from_resume,eligible_minor_disc,ppt ,eligible_major_disc,technical_test ,aptitude_test,psychometric_test,group_discussion,technical_interviews,hr_interviews) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-            values2 = (job_id, job_designation, job_description, job_location, cutoff_cpi, service_bond, terms_and_conditions, six_month_intern_possibility, early_onboarding_possibility, particularly_early_onboarding_required,
-                       early_graduate_students_are_excluded, "Job Posted", start_date, end_date, shortlist_from_resume,  "11110001001011", ppt,  "11110001001011", technical_test, aptitude_test, psychometric_test, group_discussion, technical_interviews, hr_interviews)
-            cur.execute(sql2, values2)
-            mysql.connection.commit()
-            print("Data for job profile inserted successfully")
-            try:
-
-                sql1 = "INSERT INTO company_details (person_id, job_id, company_rep, company_name, website, type_of_org, industry_sector, no_of_members, no_of_rooms_required, start_date, end_date,parent_id_1, parent_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-                values1 = (job_id, person_id, job[2], job[3], job[4], job[5],
-                           job[6], '1', '1', job[9], job[10], job_id, person_id)
-                cur.execute(sql1, values1)
-                print("Data for company_details inserted successfully")
-                sql2 = "insert into jobs_posted(job_id, person_id) values (%s, %s)"
-                values2 = (job_id, person_id)
-                cur.execute(sql2, values2)
-                print("Data for jobs_posted inserted successfully")
-                mysql.connection.commit()
-
-            except mysql.connection.Error as error:
-                mysql.connection.rollback()
-                error = "{}".format(error)
-                print(error)
-
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            error = "{}".format(error)
-            # return render_template('login/company_rep.html', value=error)
-
-        return redirect('/company-dashboard/'+str(person_id))
-
-        cur.close()
-
-    else:
-        return render_template('dashboard/post-job.html')
-
-
-@app.route('/student-applied-jobs/<person_id>')
-def student_applied_jobs(person_id):
-    cur = mysql.connection.cursor()
-    resultValue = cur.execute(
-        "SELECT * FROM applies_to where person_id=%s", [person_id])
-    if resultValue > 0:
-        jobs = cur.fetchall()
-        jobDetails = []
-        for i in range(0, len(jobs)):
-            jobId = jobs[i][0]
-            cur = mysql.connection.cursor()
-            result = cur.execute(
-                "SELECT * FROM job_profile where job_id=%s", [jobId])
-            if result > 0:
-                detail = cur.fetchone()
-                jobDetails.append(detail)
-        return render_template('dashboard/all_jobs.html', jobDetails=jobDetails)
-    else:
-        return "No jobs present"
-
-
-@app.route('/users')
-def users():
-    cur = mysql.connection.cursor()
-    resultValue = cur.execute("SELECT * FROM users")
-    if resultValue > 0:
-        userDetails = cur.fetchall()
-        return render_template('users.html', userDetails=userDetails)
-
-
+# ---------------------------------------------------------------------------------------------------------------------
 @app.after_request
 def add_header(response):
     # Prevent back button after logout
