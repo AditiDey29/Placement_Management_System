@@ -56,12 +56,12 @@
             
         }
 
-        
+      
     </style>
 {% endblock %}
 {% block content %}
     <!-- START HERE -->
-
+    {% include './partials/adm_navbar.html' %}
     <div class="student-profile py-4">
         <div class="container-fluid">
             <div class="row">
@@ -143,7 +143,6 @@
                                         </tr>
                                         
                                     </table>
-                                    <button class="btn btn-danger" style="background-color: red;" type="button" onclick="logout()">Log Out</button>
                                 </div>
                             </div>
                         </div>
@@ -153,9 +152,6 @@
         </div>
     </div>
 
-
-    {% endblock %}
-    {% block scripts %}
 
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -173,29 +169,7 @@
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function logout() {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to log out!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, Do it!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "/logout";
-        }
-      })
-      
-    }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     
-    window.onload = function() {
-      if (!{{ session.get('loggedin', False) }}) {
-        window.location.href = "{{ url_for('login') }}";
-      }
-    };
-  </script>
-  {% endblock %}
+
+</body>
