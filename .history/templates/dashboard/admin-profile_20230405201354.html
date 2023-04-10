@@ -1,4 +1,4 @@
-{% extends "dashboard/admin_view.html" %}
+{% extends "base.html" %}
 
 {% block styles %}
     <style>
@@ -58,8 +58,9 @@
 
         
     </style>
-{% endblock %}
-{% block content %}
+</head>
+
+<body>
     <!-- START HERE -->
 
     <div class="student-profile py-4">
@@ -154,8 +155,7 @@
     </div>
 
 
-    {% endblock %}
-    {% block scripts %}
+
 
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -198,4 +198,8 @@
       }
     };
   </script>
-  {% endblock %}
+</body>
+</html>
+</body>
+
+</html>
