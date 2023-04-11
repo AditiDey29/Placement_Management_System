@@ -42,21 +42,23 @@ def allowed_file(filename):
 # ---------------------------------------------------LOGIN & REGISTER & LOGOUT--------------------------------------------------------------------
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    print(request)
+    # print(request)
     if request.method == 'POST':
         userDetails = request.form
         user_id = userDetails['user_id']
         password = userDetails['password']
         cur = mysql.connection.cursor()
+ 
         cur.execute(
             "SELECT * FROM person WHERE person_id=%s AND password_hash=%s", (user_id, password))
         user = cur.fetchone()
-        if user:
+        isAuthenticated = ("--" not in user_id and len(user_id)<10)
+        if user and isAuthenticated:
             # successful login, redirect to home page
-            # print(user[9])
             session['loggedin'] = True
             session['id'] = user[0]
             return redirect(url_for('private'))
+        
         else:
             # invalid login, show error message
             error = 'Invalid username or password'
@@ -993,3 +995,7 @@ def add_header(response):
 app.secret_key = "secret key"
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
