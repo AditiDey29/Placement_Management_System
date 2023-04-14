@@ -50,28 +50,49 @@
         padding: 100px 0;
         text-align: center;
       }
+
+      h3{
+        color: white;
+        font-size: 28px;
+        line-height: 80px;
+        padding: 0 100px;
+        font-weight: bold;
+        font-family: cursive;
+    }
     </style>
   </head>
 
-  <body style="background-color: #edf6ff">
+  <body style="background-color: #edf6ff; ">
     <!-- START HERE -->
 
     <section class="h-100">
       {% include './partials/std_navbar.html' %}
+      <br> <br>
+      <!-- <h1> -->
+        <div class="card" style="background-color: #6193d1; align-items: center; width: 50%;margin-left: auto; margin-right: auto;" >
       <h3> Profile Filters </h3>
-      <a href="/filter_jobs/{{person_id}}/ME">ME Jobs</a>
-      <a href="/filter_jobs/{{person_id}}/CSE">CSE Jobs</a>
-      <a href="/filter_jobs/{{person_id}}/EE">EE Jobs</a>
-      <a href="/filter_jobs/{{person_id}}/Finance">Finance Jobs</a>
-      <a href="/filter_jobs/{{person_id}}/Other">Other Jobs</a>
+      <div style="align-items: normal;">
+      <a href="/filter_jobs/{{person_id}}/ME" class="btn btn-outline-light" role="button">ME Jobs</a>
+      <a href="/filter_jobs/{{person_id}}/CSE" class="btn btn-outline-light" role="button">CSE Jobs</a>
+      <a href="/filter_jobs/{{person_id}}/EE" class="btn btn-outline-light" role="button">EE Jobs</a>
+      <a href="/filter_jobs/{{person_id}}/Finance" class="btn btn-outline-light" role="button">Finanace Jobs</a>
+      <a href="/filter_jobs/{{person_id}}/Others" class="btn btn-outline-light" role="button">Others</a>
+    </div>
 
+    <br><br>
 
+      
       <h3>Category filters </h3>
-      <a href="/job_category/{{person_id}}/Remote">Remote Jobs</a>
-      <a href="/job_category/{{person_id}}/In-person">In Person Jobs</a>
-      <a href="/job_category/{{person_id}}/Part-time">Part Time Jobs</a>
-      <a href="/job_category/{{person_id}}/Full-time">Full Time Jobs</a>
-      <a href="/job_category/{{person_id}}/Other">Other Jobs</a>
+      <div style="align-items: normal;">
+      <a href="/job_category/{{person_id}}/Remote" class="btn btn-outline-light" role="button">Remote Jobs</a>
+      <a href="/job_category/{{person_id}}/In-person" class="btn btn-outline-light" role="button">In Person Jobs</a>
+      <a href="/job_category/{{person_id}}/Part-time" class="btn btn-outline-light" role="button">Part Time Jobs</a>
+      <a href="/job_category/{{person_id}}/Full-time" class="btn btn-outline-light" role="button">Full Time Jobs</a>
+      <a href="/job_category/{{person_id}}/Others" class="btn btn-outline-light" role="button">Other Jobs</a>
+    </div>
+    <br><br>
+    </div>
+    <!-- </h1> -->
 
 
 
