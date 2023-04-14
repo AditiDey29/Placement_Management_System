@@ -97,7 +97,12 @@
               Note: You can use the following ids for registration
             </p>
             <p class="text-center" style="color: #437fc7" id="student_id"></p>
-            <form class="mx-1 mx-md-4" method="POST" style="color: #ffffff" enctype="multipart/form-data">
+            <form
+              class="mx-1 mx-md-4"
+              method="POST"
+              style="color: #ffffff"
+              enctype="multipart/form-data"
+            >
               <div
                 class="card"
                 style="
@@ -514,32 +519,34 @@
 
                   <div class="row g-2">
                     <!-- add a dropdown for curr program -->
-                    <div class="form-outline flex-fill mb-0 col-lg-6">
-                      <select
-                        id="current_program"
+                    <div
+                      class="form-outline flex-fill mb-0 col-lg-3 form-floating"
+                    >
+                      <input
+                        type="text"
+                        id="floatingInput"
+                        class="form-control"
                         name="major_discipline"
-                        onchange="updateMajorDisciplines()"
-                      >
-                        <option value="">--Select--</option>
-                        <option value="BTECH">B.Tech.</option>
-                        <option value="MTECH">M.Tech.</option>
-                        <option value="MSC">M.Sc.</option>
-                      </select>
-                      <div id="major-disciplines"></div>
-                      <!-- <input type="text" id="form3Example3c" class="form-control" name="major_disc" required /> -->
+                        required
+                        placeholder="Major Discipline"
+                      />
                       <label class="form-label" for="form3Example3c"
-                        >Major Disciplines
+                        >Major Discipline
                         <span style="color: red">*</span></label
                       >
                     </div>
 
-                    <div class="form-outline flex-fill mb-0 col-lg-6">
-                      <button
-                        id="minor_discipline"
+                    <div
+                      class="form-outline flex-fill mb-0 col-lg-3 form-floating"
+                    >
+                      <input
+                        type="text"
+                        id="floatingInput"
+                        class="form-control"
                         name="minor_disciplines"
-                        onclick="updateMinorDisciplines()"
-                      ></button>
-                      <div id="minor-disciplines"></div>
+                        required
+                        placeholder="Minor Discipline"
+                      />
                       <label class="form-label" for="form3Example3c"
                         >Minor Disciplines
                         <span style="color: red">*</span></label
@@ -548,7 +555,6 @@
                   </div>
                 </div>
               </div>
-
               <br />
               <div class="form-check d-flex justify-content-center mb-5">
                 <input
@@ -604,14 +610,11 @@
     <script type="text/javascript">
       window.onload = function () {
         if ("{{ value }}") {
-          
           Swal.fire("{{ value }}", "Try Again!", "error");
         }
       };
     </script>
-    
- 
-    
+
     <script>
       // Get the current year for the copyright
       $("#year").text(new Date().getFullYear());
