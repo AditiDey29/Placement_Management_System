@@ -40,9 +40,14 @@ def allowed_file(filename):
 
 
 # ---------------------------------------------------LOGIN & REGISTER & LOGOUT--------------------------------------------------------------------
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    print(request)
+    ip_address = request.remote_addr
+    if 'ip_address' in session and session['ip_address'] != ip_address:
+        session.clear()
+    
     if request.method == 'POST':
         userDetails = request.form
         user_id = userDetails['user_id']
@@ -51,12 +56,14 @@ def login():
         cur.execute(
             "SELECT * FROM person WHERE person_id=%s AND password_hash=%s", (user_id, password))
         user = cur.fetchone()
-        if user:
+        isAuthenticated = ("--" not in user_id and len(user_id)<10)
+        if user and isAuthenticated:
             # successful login, redirect to home page
-            # print(user[9])
             session['loggedin'] = True
             session['id'] = user[0]
+            session['ip_address'] = ip_address
             return redirect(url_for('private'))
+        
         else:
             # invalid login, show error message
             error = 'Invalid username or password'
@@ -69,6 +76,7 @@ def login():
 @app.route('/logout')
 def logout():
     # Remove session data
+    session.pop('ip_address', None)
     session.pop('loggedin', None)
     session.pop('id', None)
 
@@ -175,8 +183,12 @@ def hr_reg():
         start_date = userDetails['start_date'],
         end_date = userDetails['end_date'],
         aptitude_test = userDetails['aptitude_test'],
+        job_profiles = userDetails['job_profiles'],
+        job_categories = userDetails['job_categories'],
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
+        print("hfrghh")
+        print(job_profiles, job_categories)
 
         try:
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -193,6 +205,11 @@ def hr_reg():
                 cur.execute(sql2, values2)
                 mysql.connection.commit()
                 print("Data for job profile inserted successfully")
+
+                sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
+                values3 = (job_id, job_profiles, job_categories)
+                cur.execute(sql3, values3)
+                print("Data for filters inserted successfully")
 
                 try:
                     sql1 = "INSERT INTO company_details (person_id, job_id, company_rep, company_name, website, type_of_org, industry_sector, no_of_members, no_of_rooms_required, start_date, end_date,parent_id_1, parent_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -428,10 +445,21 @@ def student_dashboard(person_id):
         return redirect('/student-profile/'+str(person_id))
     return redirect('/')
 
+def has_access(user_id, person_id):
+    user_id = str(user_id)
+    # print(user_id, person_id)
+    for i in range(len(user_id)):
+        if (user_id[i] != person_id[i]): 
+            return False
+    return True
 
 @app.route('/student-profile/<person_id>')
 def student_profile(person_id):
     if 'loggedin' in session:
+        user_id = session['id'] 
+        if not has_access(user_id, person_id):
+            error = "You are not allowed to access this page"
+            return render_template('dashboard/std_error.html', error=error, person_id=user_id)
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM person WHERE person_id=%s", [person_id])
         person = cur.fetchone()
@@ -559,6 +587,55 @@ def student_eligible_jobs(person_id):
             return render_template('dashboard/std_error.html', error=error, person_id=person_id)
     else:
         return redirect('/')
+
+
+@app.route('/filters/<person_id>')
+def student_filter(person_id):
+    if 'loggedin' in session:
+        return render_template('dashboard/job_filters.html', person_id=person_id)
+    return redirect("/")
+
+@app.route('/filter_jobs/<person_id>/<job_profile>')
+def filter_job_profile(person_id, job_profile):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        resultValue = cur.execute(
+            "SELECT * FROM filters where job_profile=%s", [job_profile])
+        if resultValue > 0:
+            jobs = cur.fetchall()
+            job_ids = []
+            for job in jobs:
+                job_ids.append(job[0])
+            filtered_job_profiles = []
+            for job_id in job_ids:
+                resultValue = cur.execute("SELECT * FROM job_profile where job_id=%s", [job_id])
+                if (resultValue>0):
+                    req_job = cur.fetchone()
+                    filtered_job_profiles.append(req_job)
+            return render_template('dashboard/all_jobs.html', person_id=person_id, jobDetails = filtered_job_profiles)
+        return render_template('dashboard/std_error.html', person_id=person_id, jobs="No jobs found")
+    return redirect("/")
+
+@app.route('/job_category/<person_id>/<job_category>')
+def filter_job_category(person_id, job_category):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        resultValue = cur.execute(
+            "SELECT * FROM filters where job_category=%s", [job_category])
+        if resultValue > 0:
+            jobs = cur.fetchall()
+            job_ids = []
+            for job in jobs:
+                job_ids.append(job[0])
+            filtered_job_profiles = []
+            for job_id in job_ids:
+                resultValue = cur.execute("SELECT * FROM job_profile where job_id=%s", [job_id])
+                if (resultValue>0):
+                    req_job = cur.fetchone()
+                    filtered_job_profiles.append(req_job)
+            return render_template('dashboard/all_jobs.html', person_id=person_id, jobDetails = filtered_job_profiles)
+        return render_template('dashboard/std_error.html', person_id=person_id, jobs="No jobs found")
+    return redirect("/")
 
 
 @app.route('/student-applied-jobs/<person_id>')
@@ -993,3 +1070,7 @@ def add_header(response):
 app.secret_key = "secret key"
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+

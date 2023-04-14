@@ -661,7 +661,28 @@
                             />
                             <label class="form-label" for="form3Example3c">Eligible Major Disciplines</label>
                           </div>
-                
+
+                      
+                            <strong>Select Job Profile:</strong>
+                              <select name="job_profiles" id="multiple-checkboxes" multiple="multiple">
+                                  <option value="Finance">Finance</option>
+                                  <option value="ME">Mechanical Engineering</option>
+                                  <option value="EE">Electrical Engineering</option>
+                                  <option value="CSE">Computer Science & Engineering</option>
+                                  <option value="Other">Other</option>
+                              </select>
+
+                              <br>
+                              <strong>Select Job Category:</strong>
+                              <select name="job_categories" id="multiple-checkboxes-1" multiple="multiple">
+                                  <option value="In-person">In-person</option>
+                                  <option value="Remote">Remote</option>
+                                  <option value="Full-time">Full-time</option>
+                                  <option value="Part-time">Part-time</option>
+                                  <option value="Other">Other</option>
+                              </select>
+                       
+
                           <div class="col-6" style="margin-top: 20px;">
                             <label class="radio-label">
                               <input type="radio" name="service_bond" value="yes">
@@ -673,8 +694,6 @@
                             </label><br>
                             <label class="form-label" for="form3Example3c">Service Bond</label>
                           </div>
-
-                      
                     </div>
                 </div>
                 <br>
@@ -682,7 +701,7 @@
                   <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c"
                       style="position: relative;" />
                   <label class="form-check-label" for="form2Example3" style="color: rgb(0, 0, 0)">
-                      I agree all statements in <a href="#!">Terms of service</a>
+                      I agree all statements in <a href="">Terms of service</a>
                   </label>
               </div>
               <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
@@ -730,6 +749,23 @@
         
       };
     </script>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#multiple-checkboxes').multiselect({
+          includeSelectAllOption: true,
+        });
+        $('#multiple-checkboxes-1').multiselect({
+          includeSelectAllOption: true,
+        });
+    });
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+  
+
 </body>
 
 </html>
