@@ -6,7 +6,7 @@ import json
 import os
 from werkzeug.utils import secure_filename
 from base64 import b64encode
-
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -185,6 +185,10 @@ def hr_reg():
         aptitude_test = userDetails['aptitude_test'],
         job_profiles = userDetails['job_profiles'],
         job_categories = userDetails['job_categories'],
+        zip_code = userDetails['zip_code'],
+        city = userDetails['city'],
+        state = userDetails['state'],
+        address_line = userDetails['address_line'],
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
 
@@ -201,6 +205,7 @@ def hr_reg():
                 values2 = (job_id, job_designation, job_description, job_location, cutoff_cpi, service_bond, terms_and_conditions, six_month_intern_possibility, early_onboarding_possibility, particularly_early_onboarding_required, early_graduate_students_are_excluded,
                            "Job Posted", start_date, end_date, shortlist_from_resume,  eligible_minor_disc, ppt,  eligible_major_disc, technical_test, aptitude_test, psychometric_test, group_discussion, technical_interviews, hr_interviews)
                 cur.execute(sql2, values2)
+
                 mysql.connection.commit()
                 print("Data for job profile inserted successfully")
 
@@ -220,8 +225,14 @@ def hr_reg():
                     sql2 = "insert into jobs_posted(job_id, person_id) values (%s, %s)"
                     values2 = (job_id, person_id)
                     cur.execute(sql2, values2)
-                    mysql.connection.commit()
                     print("Data for jobs_posted inserted successfully")
+
+                    sql3 = "INSERT INTO placement_management_system.address (person_id, zip_code, city, state, address_line, parent_id) VALUES (%s, %s, %s, %s, %s, %s)"
+                    values3 = (person_id, zip_code, city, state, address_line, person_id)
+                    cur.execute(sql3, values3)
+                    print("Data for address inserted successfully")
+                    mysql.connection.commit()
+                    
                     # return redirect("/users")
                     return redirect('/company-dashboard/'+str(person_id[0]))
 
@@ -311,6 +322,10 @@ def student_reg():
         personal_email = userDetails['personal_email'],
         curr_program = 'Btech',
         joining_date = userDetails['joining_date'],
+        zip_code = userDetails['zip_code'],
+        city = userDetails['city'],
+        state = userDetails['state'],
+        address_line = userDetails['address_line'],
         # year_of_graduation = userDetails['year_of_graduation'],
         resume = resume,
         major_disc = 'cse',
@@ -332,8 +347,14 @@ def student_reg():
                 values1 = (person_id, cpi, backlogs, category, gender, dob, experience, personal_email,
                            userDetails['year_of_graduation'][0:4], curr_program, resume, major_disc, minor_disc, joining_date, person_id)
                 cur.execute(sql1, values1)
-                mysql.connection.commit()
                 print("Data for student inserted successfully")
+
+                sql2 = "INSERT INTO placement_management_system.address (person_id, zip_code, city, state, address_line, parent_id) VALUES (%s, %s, %s, %s, %s, %s)"
+                values2 = (person_id, zip_code, city, state, address_line, person_id)
+                cur.execute(sql2, values2)
+                print("Data for address inserted successfully")
+
+                mysql.connection.commit()
                 return redirect("/student-dashboard/"+str(person_id[0]))
             # return redirect('/company-dashboard/'+str(person_id[0]))
                 # return redirect("/stu")
@@ -396,7 +417,11 @@ def admin_reg():
         profile_photo = profile_photo,
         password = userDetails['password'],
         nationality = "Indian",
-        designation = userDetails['designation']
+        designation = userDetails['designation'],
+        zip_code = userDetails['zip_code'],
+        city = userDetails['city'],
+        state = userDetails['state'],
+        address_line = userDetails['address_line'],
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
 
@@ -412,6 +437,12 @@ def admin_reg():
                 sql1 = "INSERT INTO administrator (person_id, designation, parent_id) VALUES (%s, %s, %s)"
                 values1 = (person_id, designation, person_id)
                 cur.execute(sql1, values1)
+
+                sql2 = "INSERT INTO placement_management_system.address (person_id, zip_code, city, state, address_line, parent_id) VALUES (%s, %s, %s, %s, %s, %s)"
+                values2 = (person_id, zip_code, city, state, address_line, person_id)
+                cur.execute(sql2, values2)
+                print("Data for address inserted successfully")
+
                 mysql.connection.commit()
                 print("Data for admin inserted successfully")
                 return redirect("/admin-dashboard/"+str(person_id[0]))
@@ -729,9 +760,11 @@ def query_help(person_id, person_role):
         userDetails = request.form
         message = userDetails['message'],
         email = userDetails['email'],
+        date = datetime.today().date()
         cur = mysql.connection.cursor()
-        sql = "INSERT INTO queries (person_role, person_id, message, email_id) VALUES (%s, %s, %s, %s)"
-        values = (person_role, person_id, message, email)
+        print(date)
+        sql = "INSERT INTO queries (person_role, person_id, message, email_id, query_date) VALUES (%s, %s, %s, %s, %s)"
+        values = (person_role, person_id, message, email, date)
         cur.execute(sql, values)
         mysql.connection.commit()
         alert = "Query Submitted Successfully!"
