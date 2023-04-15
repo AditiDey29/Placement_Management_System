@@ -327,6 +327,13 @@ def student_reg():
         city = userDetails['city'],
         state = userDetails['state'],
         address_line = userDetails['address_line'],
+        tenth_board = userDetails['10th_board'],
+        twelfth_board = userDetails['12th_board'],
+        tenth_per = userDetails['10th_board_percentage'],
+        twelfth_per = userDetails['12th_board_percentage'],
+        comp_exam = userDetails['competative_exam'],
+        exam_rank = userDetails['exam_rank'],
+
         # year_of_graduation = userDetails['year_of_graduation'],
         resume = resume,
         major_disc = 'cse',
@@ -354,6 +361,11 @@ def student_reg():
                 values2 = (person_id, zip_code, city, state, address_line, person_id)
                 cur.execute(sql2, values2)
                 print("Data for address inserted successfully")
+
+                sql3 = "INSERT INTO placement_management_system.educational_details  (person_id, board_for_tenth, board_of_twelfth, tenth_percentage, twelfth_percentage, competitive_exam_name, competitive_exam_rank) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                values3 = (person_id, tenth_board, twelfth_board, tenth_per, twelfth_per, comp_exam, exam_rank)
+                cur.execute(sql3, values3)
+                print("Data for education inserted successfully")
 
                 mysql.connection.commit()
                 return redirect("/student-dashboard/"+str(person_id[0]))

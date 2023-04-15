@@ -1,65 +1,73 @@
-{% extends "dashboard/admin_view.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css"
+    />
+    <!-- Font Awesome CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Company Profile</title>
 
-{% block styles %}
     <style>
-        body {
-            background: #EDF6FF;
-            /* fallback for old browsers */
-            background: -webkit-linear-gradient(to right, #EDF6FF, #EDF6FF);
-            /* Chrome 10-25, Safari 5.1-6 */
-            background: linear-gradient(to right, #EDF6FF,#EDF6FF);
-            /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-            padding: 0;
-            margin: 0;
-            font-family: 'Lato', sans-serif;
-            color: #000;
-        }
+      body {
+        background: #edf6ff;
+        /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #edf6ff, #edf6ff);
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #edf6ff, #edf6ff);
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        padding: 0;
+        margin: 0;
+        font-family: "Lato", sans-serif;
+        color: #000;
+      }
 
-        .student-profile .card {
-            border-radius: 10px;
-        }
+      .student-profile .card {
+        border-radius: 10px;
+      }
 
-        .student-profile .card .card-header .profile_img {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            margin: 10px auto;
-            border: 10px solid #437FC7;
-            border-radius: 50%;
-        }
+      .student-profile .card .card-header .profile_img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 10px auto;
+        border: 10px solid #437fc7;
+        border-radius: 50%;
+      }
 
-        .student-profile .card h3 {
-            font-size: 20px;
-            font-weight: 700;
-        }
+      .student-profile .card h3 {
+        font-size: 20px;
+        font-weight: 700;
+      }
 
-        .student-profile .card p {
-            font-size: 16px;
-            color: #000;
-        }
+      .student-profile .card p {
+        font-size: 16px;
+        color: #000;
+      }
 
-        .student-profile .table th,
-        .student-profile .table td {
-            font-size: 14px;
-            padding: 5px 10px;
-            color: #000;
-        }
-
-        .btn-danger{
-            background-color: red;
-
-        }
-        
-        .btn-danger:hover{
-            background-color: rgb(0, 0, 0);
-            color: #EDF6FF;
-            
-        }
-
-      
+      .student-profile .table th,
+      .student-profile .table td {
+        font-size: 14px;
+        padding: 5px 10px;
+        color: #000;
+      }
     </style>
-{% endblock %}
-{% block content %}
+  </head>
+
     <!-- START HERE -->
     {% include './partials/adm_navbar.html' %}
     <div class="student-profile py-4">
@@ -108,8 +116,7 @@
                                         <tr>
                                             <th width="30%">Contact</th>
                                             <td width="2%">:</td>
-                                            <td class="text-muted mb-0">+{{person[4]['country_code'][0]}}
-                                                {{person[4]['number'][0]}}</td>
+                                            <td class="text-muted mb-0">{{person[4]}}</td>
                                         </tr>
                                         <tr>
                                             <th width="30%">Institute Email Address</th>
