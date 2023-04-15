@@ -187,8 +187,6 @@ def hr_reg():
         job_categories = userDetails['job_categories'],
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
-        print("hfrghh")
-        print(job_profiles, job_categories)
 
         try:
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -206,9 +204,10 @@ def hr_reg():
                 mysql.connection.commit()
                 print("Data for job profile inserted successfully")
 
-                sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
-                values3 = (job_id, job_profiles, job_categories)
-                cur.execute(sql3, values3)
+                for profile in job_profiles:
+                    sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
+                    values3 = (job_id, profile, job_categories)
+                    cur.execute(sql3, values3)
                 print("Data for filters inserted successfully")
 
                 try:
@@ -532,31 +531,33 @@ def show_job_profile(job_id):
 
 @app.route('/update-details/<person_id>', methods=['GET', 'POST'])
 def update_cpi(person_id):
-    # if session.get('loggedin'):
     if request.method == 'POST':
-        # Fetch form data
         userDetails = request.form
         newcpi = userDetails['cpi']
         experience = userDetails['experience']
-        print("newcpi ", newcpi)
-        print("experience ", experience)
         try:
             cur = mysql.connection.cursor()
-            cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", (
+            cur.execute("LOCK TABLES student WRITE")
+            cur.execute("SELECT * FROM student WHERE person_id = %s", [person_id])
+            record = cur.fetchone()
+            if record:
+                cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", (
                         newcpi, experience, person_id))
-            mysql.connection.commit()
-            print("Data for cpi updated successfully")
-            return redirect("/student-profile/"+str(person_id))
-
-        except mysql.connection.Error as error:
-            # print("Failed to insert data into MySQL table: {}".format(error))
-            mysql.connection.rollback()  # Roll back changes in case of error
-            # return "An error occurred while inserting data, Error is {}".format(error)
-            # print(error)
+                mysql.connection.commit()
+                print("Data for cpi updated successfully")
+                return redirect("/student-profile/"+str(person_id))
+            else:
+                error = "Data not found"
+                return render_template("dashboard/error.html", person_id=person_id, error=error)
+        except Exception as error:
+            mysql.connection.rollback()
             error = "{}".format(error)
-            # return "An occurred please try again later"
-            # alert = "Some error occurred please try again later"
-            return redirect("/student-profile/"+str(person_id))
+            return render_template("dashboard/error.html", person_id=person_id, error=error)
+
+        finally:
+        # Release the lock on the table
+            cur.execute("UNLOCK TABLES")
+            cur.close()
     return render_template('dashboard/update_cpi.html', person_id=person_id)
 
 
@@ -722,6 +723,24 @@ def posted_jobs(person_id):
             return render_template('dashboard/cmp_error.html', error=error, person_id=person_id)
     return redirect('/')
 
+@app.route('/<person_role>/help/<person_id>', methods=['GET', 'POST'])
+def query_help(person_id, person_role):
+    if request.method == 'POST':
+        userDetails = request.form
+        message = userDetails['message'],
+        email = userDetails['email'],
+        cur = mysql.connection.cursor()
+        sql = "INSERT INTO queries (person_role, person_id, message, email_id) VALUES (%s, %s, %s, %s)"
+        values = (person_role, person_id, message, email)
+        cur.execute(sql, values)
+        mysql.connection.commit()
+        alert = "Query Submitted Successfully!"
+        if (person_role=="student"):
+            return render_template('dashboard/std_help.html', person_id=person_id, alert=alert)
+        return render_template('dashboard/company_help.html', person_id=person_id, alert=alert)
+    if (person_role=="student"):
+        return render_template('dashboard/std_help.html', person_id=person_id)
+    return render_template('dashboard/company_help.html', person_id=person_id)
 
 @app.route('/post-job/<person_id>', methods=['GET', 'POST'])
 def post_job(person_id):
@@ -750,6 +769,9 @@ def post_job(person_id):
             start_date = userDetails['start_date'],
             end_date = userDetails['end_date'],
             aptitude_test = userDetails['aptitude_test'],
+            job_categories = userDetails['job_categories'],
+            job_profiles = userDetails['job_profiles'],
+            print(job_categories, job_profiles)
             cur = mysql.connection.cursor()
 
             cur.execute(
@@ -774,6 +796,12 @@ def post_job(person_id):
                     values2 = (job_id, person_id)
                     cur.execute(sql2, values2)
                     print("Data for jobs_posted inserted successfully")
+
+                    for profile in job_profiles:
+                        sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
+                        values3 = (job_id, profile, job_categories)
+                        cur.execute(sql3, values3)
+                    print("Data for filters inserted successfully")
                     mysql.connection.commit()
 
                 except mysql.connection.Error as error:
@@ -795,6 +823,7 @@ def post_job(person_id):
         return redirect('/')
 
 
+
 # ---------------------------------------------------ADMIN DASHBOARD--------------------------------------------------------
 
 
@@ -804,6 +833,15 @@ def admin_dashboard(person_id):
         return redirect('/admin-profile/'+str(person_id))
     return redirect('/')
     # return render_template('dashboard/admin_view.html', person_id=person_id)
+
+@app.route('/see-queries/<person_id>')
+def see_queries(person_id):
+    if session.get('loggedin'):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM queries")
+        queries = cur.fetchall()
+        return render_template('dashboard/see_queries.html', person_id=person_id, queries = queries)
+    return render_template('dashboard/see_queries.html', person_id=person_id)
 
 
 @app.route('/admin-profile/<person_id>')

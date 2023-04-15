@@ -94,8 +94,8 @@
             />
           </div>
           <div
-            class="col-lg-6 col-md-12 offset-0 offset-lg-6 text-right "  id="blueDIV"
-          
+            class="col-lg-6 col-md-12 offset-0 offset-lg-6 text-right"
+            id="blueDIV"
           >
             <p
               class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4"
@@ -464,6 +464,29 @@
                       >
                     </div>
 
+                    <div>
+                      <strong>Select Job Profile:</strong>
+                      <select name="job_profiles">
+                        <option value="">Select*</option>
+                        <option value="Finance">Finance</option>
+                        <option value="ME">Mechanical Engineering</option>
+                        <option value="EE">Electrical Engineering</option>
+                        <option value="CSE">
+                          Computer Science & Engineering
+                        </option>
+                        <option value="Other">Other</option>
+                      </select>
+                      <strong>Select Job Category:</strong>
+                      <select name="job_categories">
+                        <option value="">Select*</option>
+                        <option value="In-person">In-person</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
                     <div class="col-6" style="margin-top: 20px">
                       <label class="radio-label">
                         <input type="radio" name="service_bond" value="yes" />
@@ -520,5 +543,20 @@
       }
       document.getElementById("job_id").innerText = arr;
     </script>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#multiple-checkboxes").multiselect({
+          includeSelectAllOption: true,
+        });
+      });
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+    <script
+      type="text/javascript"
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
   </body>
 </html>

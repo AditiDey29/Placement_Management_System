@@ -674,15 +674,15 @@
 
                               <br>
                               <strong>Select Job Category:</strong>
-                              <select name="job_categories" id="multiple-checkboxes-1" multiple="multiple">
+                              <select name="job_categories">
+                                  <option value="">Select*</option>
                                   <option value="In-person">In-person</option>
                                   <option value="Remote">Remote</option>
                                   <option value="Full-time">Full-time</option>
                                   <option value="Part-time">Part-time</option>
                                   <option value="Other">Other</option>
                               </select>
-                       
-
+                              
                           <div class="col-6" style="margin-top: 20px;">
                             <label class="radio-label">
                               <input type="radio" name="service_bond" value="yes">
@@ -755,9 +755,7 @@
         $('#multiple-checkboxes').multiselect({
           includeSelectAllOption: true,
         });
-        $('#multiple-checkboxes-1').multiselect({
-          includeSelectAllOption: true,
-        });
+        
     });
     </script>
 
