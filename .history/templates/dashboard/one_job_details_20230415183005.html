@@ -87,9 +87,26 @@
                       <td class="text-muted mb-0">{{company[3]}}</td>
                     </tr>
                     <tr>
+                      <th width="30%">Job Location</th>
+                      <td width="2%">:</td>
+                      <td class="text-muted mb-0">{{job[3]}}</td>
+                    </tr>
+                    <tr>
                       <th width="30%">Type of Organisation</th>
                       <td width="2%">:</td>
                       <td class="text-muted mb-0">{{company[5]}}</td>
+                    </tr>
+                    <tr>
+                      <th width="30%">Hiring Process Starts from</th>
+                      <td width="2%">:</td>
+                      <td class="text-muted mb-0"><input type="date" id="intern-date" name="intern-date">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th width="30%">End of the hiring process</th>
+                      <td width="2%">:</td>
+                      <td class="text-muted mb-0"><input type="date" id="intern-date" name="intern-date">
+                      </td>
                     </tr>
                     <tr>
                       <th width="30%">Industry Sector</th>
@@ -101,23 +118,6 @@
                       <td width="2%">:</td>
                       <td class="text-muted mb-0">{{company[4]}}</td>
                     </tr>
-                    <tr>
-                      <th width="30%">Job Location</th>
-                      <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[3]}}</td>
-                    </tr>
-                    <tr>
-                      <th width="30%">Hiring Process Starts from</th>
-                      <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[12]}}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th width="30%">End of the hiring process</th>
-                      <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[13]}}
-                      </td>
-                    </tr>
                   </table>
                 </div>
                 <div class="col-lg-6">
@@ -126,21 +126,23 @@
                     <tr>
                       <th width="30%">Job Description</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0"> <div class="col-lg-4">
-                        <!-- <div class="card shadow-sm"> -->
-                            <div class="card-header bg-transparent text-center">
-                                <object
-                                data='data:application/pdf;base64, {{jd}}'
-                                type="application/pdf"
-                                width="300"
-                                height="300"
-                              > 
-                                <p>This browser does not support PDF!</p>
-                                </iframe>
-                              </object>
-                            </div>
-                        <!-- </div> -->
-                      </div></td>
+                      <td class="text-muted mb-0">
+                        <div class="col-lg-4">
+                          <!-- <div class="card shadow-sm"> -->
+                              <div class="card-header bg-transparent text-center">
+                                  <object
+                                  data='data:application/pdf;base64, {{jd}}'
+                                  type="application/pdf"
+                                  width="300"
+                                  height="300"
+                                > 
+                                  <p>This browser does not support PDF!</p>
+                                  </iframe>
+                                </object>
+                              </div>
+                          <!-- </div> -->
+                        </div>
+                      </td>
                     </tr>
                     
                   </table>
@@ -202,27 +204,33 @@
                       <td class="text-muted mb-0">{{job[1]}}</td>
                     </tr>
                     <tr>
-                      <th width="30%">Round Start Date</th>
+                      <th width="30%">Round Start Dete</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[12]}}
+                      <td class="text-muted mb-0"><input type="date" id="intern-date" name="intern-date">
                       </td>
                     </tr>
                     <tr>
                       <th width="30%">Round End Date</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[13]}}
+                      <td class="text-muted mb-0"><input type="date" id="intern-date" name="intern-date">
                       </td>
                     </tr>
                     <tr>
                       <th width="30%">Pre-Placement Talk</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[16]}}
+                      <td class="text-muted mb-0"><select name="internship_possibility">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                      </select>
                     </td>
                     </tr>
                     <tr>
                       <th width="30%">Technical Test</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[18]}}
+                      <td class="text-muted mb-0"><select name="internship_possibility">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                      </select>
                     </td>
                     </tr>
                   </table>
@@ -233,30 +241,39 @@
                     <tr>
                       <th width="30%">Aptitude Test</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[19]}}
+                      <td class="text-muted mb-0"><select name="internship_possibility">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                      </select>
                     </td>
                     </tr>
                     <tr>
                       <th width="30%">Psychometric Test</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[20]}}
+                      <td class="text-muted mb-0"><select name="internship_possibility">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                      </select>
                     </td>
                     </tr>
                     <tr>
                       <th width="30%">Group Discussion</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[21]}}
+                      <td class="text-muted mb-0"><select name="internship_possibility">
+                        <option value="yes">Yes</option>
+                        <option value="no" selected>No</option>
+                      </select>
                     </td>
                     </tr>
                     <tr>
                       <th width="30%">Number of Technical Rounds</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[22]}}
+                      <td class="text-muted mb-0"><input type="number" name="Number" min="0" max="100" step="1" value="Number"></td>
                     </tr>
                     <tr>
                       <th width="30%">Number of HR Interviews</th>
                       <td width="2%">:</td>
-                      <td class="text-muted mb-0">{{job[23]}}
+                      <td class="text-muted mb-0"><input type="number" name="Number" min="0" max="100" step="1" value="Number"></td>
                     </tr>
                   </table>
                 </div>
@@ -333,7 +350,10 @@
                 <tr>
                   <th width="30%">6-month intern possibility</th>
                   <td width="2%">:</td>
-                  <td class="text-muted mb-0">{{job[7]}}
+                  <td class="text-muted mb-0"><select name="internship_possibility">
+                    <option value="yes">Yes</option>
+                    <option value="no" selected>No</option>
+                  </select>
                 </td>
                 </tr>
 
@@ -344,19 +364,28 @@
                 <tr>
                   <th width="30%">Early onboarding possibility</th>
                   <td width="2%">:</td>
-                  <td class="text-muted mb-0">{{job[8]}}
+                  <td class="text-muted mb-0"><select name="internship_possibility">
+                    <option value="yes">Yes</option>
+                    <option value="no" selected>No</option>
+                  </select>
                 </td>
                 </tr>
                 <tr>
                   <th width="30%">Early onboarding required</th>
                   <td width="2%">:</td>
-                  <td class="text-muted mb-0">{{job[9]}}
+                  <td class="text-muted mb-0"><select name="internship_possibility">
+                    <option value="yes">Yes</option>
+                    <option value="no" selected>No</option>
+                  </select>
                 </td>
                 </tr>
                 <tr>
                   <th width="30%">Exclusion of early graduate students</th>
                   <td width="2%">:</td>
-                  <td class="text-muted mb-0">{{job[10]}}
+                  <td class="text-muted mb-0"><select name="internship_possibility">
+                    <option value="yes">Yes</option>
+                    <option value="no" selected>No</option>
+                  </select>
                 </td>
                 </tr>
                 <tr>
