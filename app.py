@@ -191,6 +191,8 @@ def hr_reg():
         address_line = userDetails['address_line'],
         x = {"country_code": country_code, "number": mobile_number}
         cur = mysql.connection.cursor()
+        print("hfrghh")
+        print(job_profiles, job_categories)
 
         try:
             sql = "INSERT INTO person(person_id, first_name, middle_name, last_name, mobile_number, email, profile_photo, password_hash, nationality, person_role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -209,10 +211,9 @@ def hr_reg():
                 mysql.connection.commit()
                 print("Data for job profile inserted successfully")
 
-                for profile in job_profiles:
-                    sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
-                    values3 = (job_id, profile, job_categories)
-                    cur.execute(sql3, values3)
+                sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
+                values3 = (job_id, job_profiles, job_categories)
+                cur.execute(sql3, values3)
                 print("Data for filters inserted successfully")
 
                 try:
@@ -538,6 +539,10 @@ def show_job_profile(job_id):
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
         job = cur.fetchone()
+        if job[2] is not None:
+            jd = b64encode(job[2]).decode('utf-8')
+        else:
+            jd = " "
         if job:
             cur.execute(
                 "SELECT * FROM company_details WHERE job_id=%s", [job_id])
@@ -548,11 +553,11 @@ def show_job_profile(job_id):
                 details = cur.fetchall()
                 # print(details)
                 if details:
-                    return render_template('dashboard/one_job_details.html', job=job, company=company, details=details)
+                    return render_template('dashboard/one_job_details.html', job=job, company=company, details=details, jd=jd)
                 else:
-                    return render_template('dashboard/one_job_details.html', job=job, company=company)
+                    return render_template('dashboard/one_job_details.html', job=job, company=company, jd=jd)
             else:
-                return render_template('dashboard/one_job_details.html', job=job)
+                return render_template('dashboard/one_job_details.html', job=job, jd=jd)
         else:
             error = "No Job ID exists with this id"
             return render_template('dashboard/std_error.html', error=error)
@@ -562,33 +567,31 @@ def show_job_profile(job_id):
 
 @app.route('/update-details/<person_id>', methods=['GET', 'POST'])
 def update_cpi(person_id):
+    # if session.get('loggedin'):
     if request.method == 'POST':
+        # Fetch form data
         userDetails = request.form
         newcpi = userDetails['cpi']
         experience = userDetails['experience']
+        print("newcpi ", newcpi)
+        print("experience ", experience)
         try:
             cur = mysql.connection.cursor()
-            cur.execute("LOCK TABLES student WRITE")
-            cur.execute("SELECT * FROM student WHERE person_id = %s", [person_id])
-            record = cur.fetchone()
-            if record:
-                cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", (
+            cur.execute("UPDATE student SET cpi = %s, professional_experience=%s WHERE person_id = %s", (
                         newcpi, experience, person_id))
-                mysql.connection.commit()
-                print("Data for cpi updated successfully")
-                return redirect("/student-profile/"+str(person_id))
-            else:
-                error = "Data not found"
-                return render_template("dashboard/error.html", person_id=person_id, error=error)
-        except Exception as error:
-            mysql.connection.rollback()
-            error = "{}".format(error)
-            return render_template("dashboard/error.html", person_id=person_id, error=error)
+            mysql.connection.commit()
+            print("Data for cpi updated successfully")
+            return redirect("/student-profile/"+str(person_id))
 
-        finally:
-        # Release the lock on the table
-            cur.execute("UNLOCK TABLES")
-            cur.close()
+        except mysql.connection.Error as error:
+            # print("Failed to insert data into MySQL table: {}".format(error))
+            mysql.connection.rollback()  # Roll back changes in case of error
+            # return "An error occurred while inserting data, Error is {}".format(error)
+            # print(error)
+            error = "{}".format(error)
+            # return "An occurred please try again later"
+            # alert = "Some error occurred please try again later"
+            return redirect("/student-profile/"+str(person_id))
     return render_template('dashboard/update_cpi.html', person_id=person_id)
 
 
@@ -802,9 +805,6 @@ def post_job(person_id):
             start_date = userDetails['start_date'],
             end_date = userDetails['end_date'],
             aptitude_test = userDetails['aptitude_test'],
-            job_categories = userDetails['job_categories'],
-            job_profiles = userDetails['job_profiles'],
-            print(job_categories, job_profiles)
             cur = mysql.connection.cursor()
 
             cur.execute(
@@ -829,12 +829,6 @@ def post_job(person_id):
                     values2 = (job_id, person_id)
                     cur.execute(sql2, values2)
                     print("Data for jobs_posted inserted successfully")
-
-                    for profile in job_profiles:
-                        sql3 = "INSERT INTO filters (job_id, job_profile, job_category) VALUES(%s,%s,%s)"
-                        values3 = (job_id, profile, job_categories)
-                        cur.execute(sql3, values3)
-                    print("Data for filters inserted successfully")
                     mysql.connection.commit()
 
                 except mysql.connection.Error as error:
@@ -856,7 +850,6 @@ def post_job(person_id):
         return redirect('/')
 
 
-
 # ---------------------------------------------------ADMIN DASHBOARD--------------------------------------------------------
 
 
@@ -866,15 +859,6 @@ def admin_dashboard(person_id):
         return redirect('/admin-profile/'+str(person_id))
     return redirect('/')
     # return render_template('dashboard/admin_view.html', person_id=person_id)
-
-@app.route('/see-queries/<person_id>')
-def see_queries(person_id):
-    if session.get('loggedin'):
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM queries")
-        queries = cur.fetchall()
-        return render_template('dashboard/see_queries.html', person_id=person_id, queries = queries)
-    return render_template('dashboard/see_queries.html', person_id=person_id)
 
 
 @app.route('/admin-profile/<person_id>')
@@ -1005,12 +989,16 @@ def show_job_posted_profile(job_id):
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM job_profile WHERE job_id=%s", [job_id])
         job = cur.fetchone()
+        if job[2] is not None:
+            jd = b64encode(job[2]).decode('utf-8')
+        else:
+            jd = " "
         if job:
             cur.execute("select * from prog_details where job_id=%s", [job_id])
             details = cur.fetchall()
             if details:
-                return render_template('dashboard/one_job_details.html', job=job, details=details)
-            return render_template('dashboard/one_job_detail_1.html', job=job)
+                return render_template('dashboard/one_job_details.html', job=job, details=details, jd=jd)
+            return render_template('dashboard/one_job_detail_1.html', job=job, jd=jd)
         else:
             return "No Job ID exists with this id"
     return redirect('/')
