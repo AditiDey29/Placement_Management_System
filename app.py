@@ -1127,6 +1127,25 @@ def delete_account(person_id):
         session.pop('id', None)
     return redirect(url_for('login'))
 
+# --------------------------------------------------------------------------------------------------------------------
+@app.route('/xss/<person_id>')
+def xss(person_id):
+    if session.get('loggedin'):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM person where person_id=%s", [person_id])
+        person = cur.fetchone()   
+        return render_template('dashboard/xss.html', person_id=person_id, person=person)
+    else:
+        return redirect('/')
+
+@app.route('/see-queries/<person_id>')
+def see_queries(person_id):
+    if session.get('loggedin'):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM queries")
+        queries = cur.fetchall()
+        return render_template('dashboard/see_queries.html', person_id=person_id, queries = queries)
+    return render_template('dashboard/see_queries.html', person_id=person_id)
 
 # ---------------------------------------------------------------------------------------------------------------------
 @app.after_request
