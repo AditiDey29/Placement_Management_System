@@ -1,4 +1,7 @@
 # Placement Management System
+
+Please check the <a href="https://github.com/AditiDey29/Placement_Management_System/blob/main/report.pdf">report</a> for details and screenshots.
+
 ## Initial Setup
 *Note:*     
 * The recommanded version of python is python 3.8.    
